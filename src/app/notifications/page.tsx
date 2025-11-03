@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import ClientMount from '@/components/ClientMount';
 import { 
   BookOpen, 
   Bell, 
@@ -21,7 +20,6 @@ import {
   Trash2,
   Eye,
   Share,
-  Building
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -248,12 +246,11 @@ export default function NotificationsPage() {
       </nav>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <ClientMount>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-4xl font-bold text-gray-900 mb-2">Notifications</h1>
@@ -550,8 +547,7 @@ export default function NotificationsPage() {
               <p className="text-gray-500">Try adjusting your search or filters</p>
             </div>
           )}
-          </motion.div>
-        </ClientMount>
+        </motion.div>
       </div>
     </div>
   );

@@ -25,21 +25,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {/*
-          Some browser extensions (notably Grammarly) inject attributes onto
-          the <body> element at runtime (for example: data-gr-ext-installed,
-          data-new-gr-c-s-check-loaded). That can cause React hydration
-          mismatches because the server-rendered HTML doesn't include them.
-
-          This small inline script removes those known attributes early during
-          parsing so the DOM the client-side React sees matches the server
-          markup and prevents hydration errors in development.
-        */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `;(function(){try{const b=document && document.body;if(b){b.removeAttribute('data-gr-ext-installed');b.removeAttribute('data-new-gr-c-s-check-loaded');}}catch(e){} })()`
-          }}
-        />
         {children}
       </body>
     </html>

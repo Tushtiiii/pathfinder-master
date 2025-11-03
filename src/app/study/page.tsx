@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import ClientMount from '@/components/ClientMount';
 import { 
   BookOpen, 
   Video, 
@@ -19,6 +18,7 @@ import {
   List
 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface StudyMaterial {
   id: number;
@@ -216,12 +216,11 @@ export default function StudyMaterialsPage() {
       </nav>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <ClientMount>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">Study Materials</h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -243,7 +242,7 @@ export default function StudyMaterialsPage() {
                   className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
                 >
                   <div className="relative">
-                    <img
+                    <Image
                       src={material.thumbnail}
                       alt={material.title}
                       className="w-full h-48 object-cover"
@@ -414,7 +413,7 @@ export default function StudyMaterialsPage() {
                   >
                     <div className="flex space-x-6">
                       <div className="relative flex-shrink-0">
-                        <img
+                        <Image
                           src={material.thumbnail}
                           alt={material.title}
                           className="w-32 h-20 object-cover rounded-lg"
@@ -472,7 +471,7 @@ export default function StudyMaterialsPage() {
                   className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
                 >
                   <div className="relative">
-                    <img
+                    <Image
                       src={material.thumbnail}
                       alt={material.title}
                       className="w-full h-48 object-cover"
@@ -542,8 +541,7 @@ export default function StudyMaterialsPage() {
               <p className="text-gray-500">Try adjusting your search or filters</p>
             </div>
           )}
-          </motion.div>
-        </ClientMount>
+        </motion.div>
       </div>
     </div>
   );

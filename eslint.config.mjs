@@ -19,22 +19,6 @@ const eslintConfig = [
       "build/**",
       "next-env.d.ts",
     ],
-    rules: {
-      // Prevent importing server-only modules from client components.
-      // Blocks common path styles: absolute alias (@/lib/*) and relative imports into src/lib.
-      'no-restricted-imports': [
-        'error',
-        {
-          patterns: [
-            '@/lib/*',
-            'src/lib/*',
-            '../lib/*',
-            '../../lib/*',
-            '../../../lib/*'
-          ]
-        }
-      ]
-    }
   },
 ];
 

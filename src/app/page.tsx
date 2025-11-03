@@ -1,16 +1,18 @@
-'use client';
+"use client";
 
 import { motion } from 'framer-motion';
-import { 
-  BookOpen, 
-  Calendar, 
-  Brain, 
+import {
+  BookOpen,
+  Calendar,
+  Brain,
   TrendingUp,
   School,
   Target,
-  Bell
+  Bell,
+  Play, 
 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Home() {
   return (
@@ -23,7 +25,7 @@ export default function Home() {
               <BookOpen className="h-8 w-8 text-blue-600" />
               <span className="text-2xl font-bold text-gray-900">EduGuide</span>
             </div>
-            
+
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
               <Link href="/quiz" className="text-gray-600 hover:text-blue-600 transition-colors font-medium">Quiz</Link>
@@ -35,10 +37,10 @@ export default function Home() {
                 Dashboard
               </Link>
             </div>
-            
+
             {/* Mobile menu button */}
             <div className="md:hidden">
-              <button 
+              <button
                 className="text-gray-600 hover:text-gray-900"
                 aria-label="Open mobile menu"
                 title="Open mobile menu"
@@ -54,26 +56,52 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center"
+          className="flex flex-col md:flex-row items-center gap-8"
         >
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
-            Your Personalized <span className="text-blue-600">Career Journey</span> Starts Here
-          </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Discover your perfect career path with AI-powered recommendations, 
-            comprehensive college information, and personalized guidance tailored just for you.
-          </p>
-          <div className="flex justify-center space-x-4">
-            <Link href="/dashboard" className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors">
-              Get Started
-            </Link>
-            <Link href="/quiz" className="border-2 border-blue-600 text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-50 transition-colors">
-              Take Quiz
-            </Link>
+          <div className="flex-1 text-center md:text-left">
+            <h1 className="text-5xl font-bold text-gray-900 mb-6">
+              Your Personalized <span className="text-blue-600">Career Journey</span> Starts Here
+            </h1>
+            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto md:mx-0">
+              Discover your perfect career path with AI-powered recommendations,
+              comprehensive college information, and personalized guidance tailored just for you.
+            </p>
+            <div className="flex justify-center md:justify-start space-x-4">
+              <Link href="/auth" className="inline-flex items-center bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors">
+                <Play className="mr-2 h-5 w-5" />Get Started
+              </Link>
+              <Link href="/quiz" className="border-2 border-blue-600 text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-blue-50 transition-colors">
+                Take Quiz
+              </Link>
+            </div>
+          </div>
+
+          <div className="flex-1 flex justify-center">
+            <Image
+              src="/pathfinder.avif"
+              alt="Illustration showing a student planning their career path"
+              width={520}
+              height={360}
+              sizes="(max-width: 768px) 90vw, 520px"
+              className="rounded-lg shadow-xl max-w-full h-auto"
+            />
+            {/* <Card className="absolute -bottom-6 -left-6 p-6 shadow-lg">
+                <CardContent className="p-0">
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-secondary/10 p-3 rounded-lg">
+                      <GraduationCap className="text-secondary h-6 w-6" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Students Guided</p>
+                      <p className="text-2xl font-bold text-foreground" data-testid="text-students-count">50,000+</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card> */}
           </div>
         </motion.div>
       </section>
@@ -85,7 +113,7 @@ export default function Home() {
         </h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Aptitude Testing */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
@@ -104,7 +132,7 @@ export default function Home() {
           </motion.div>
 
           {/* Career Path Mapping */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -123,7 +151,7 @@ export default function Home() {
           </motion.div>
 
           {/* College Directory */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
@@ -142,7 +170,7 @@ export default function Home() {
           </motion.div>
 
           {/* Timeline Tracker */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
@@ -161,7 +189,7 @@ export default function Home() {
           </motion.div>
 
           {/* Personalization */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
@@ -180,7 +208,7 @@ export default function Home() {
           </motion.div>
 
           {/* Notifications */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
