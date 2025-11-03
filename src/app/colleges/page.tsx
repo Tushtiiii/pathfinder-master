@@ -171,18 +171,18 @@ export default function CollegesDirectory() {
           <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
             <div className="flex flex-col md:flex-row gap-4 mb-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <Search className="absolute left-3 top-3 h-5 w-5 text-gray-700" />
                 <input
                   type="text"
                   placeholder="Search colleges, programs, or locations..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 text-gray-700 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="flex items-center space-x-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 <Filter className="h-5 w-5" />
                 <span>Filters</span>
@@ -201,7 +201,7 @@ export default function CollegesDirectory() {
                   <select
                     value={selectedState}
                     onChange={(e) => setSelectedState(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full text-gray-700 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     aria-label="Select state"
                   >
                     <option value="">All States</option>
@@ -215,7 +215,7 @@ export default function CollegesDirectory() {
                   <select
                     value={selectedType}
                     onChange={(e) => setSelectedType(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full text-gray-700 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     aria-label="Select college type"
                   >
                     <option value="">All Types</option>
@@ -245,7 +245,7 @@ export default function CollegesDirectory() {
             <h2 className="text-2xl font-semibold text-gray-900">
               {filteredColleges.length} Colleges Found
             </h2>
-            <select className="p-2 border border-gray-300 rounded-lg" aria-label="Sort colleges by">
+            <select className="p-2 border text-gray-700 border-gray-300 rounded-lg" aria-label="Sort colleges by">
               <option>Sort by Rating</option>
               <option>Sort by Fees (Low to High)</option>
               <option>Sort by Cut-off (Low to High)</option>

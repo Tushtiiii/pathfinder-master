@@ -242,11 +242,12 @@ export default function StudyMaterialsPage() {
                   className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
                 >
                   <div className="relative">
-                    <Image
+                    {/* <Image
                       src={material.thumbnail}
+                      width={400}height={250}
                       alt={material.title}
                       className="w-full h-48 object-cover"
-                    />
+                    /> */}
                     {material.isPremium && (
                       <span className="absolute top-3 right-3 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-bold">
                         PREMIUM
@@ -290,13 +291,13 @@ export default function StudyMaterialsPage() {
                   placeholder="Search materials, topics, or authors..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full text-gray-500  pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center  text-gray-500 space-x-3">
                 <button
                   onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="flex items-center  text-gray-500 space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
                   <Filter className="h-5 w-5" />
                   <span>Filters</span>
@@ -332,7 +333,7 @@ export default function StudyMaterialsPage() {
                   <select
                     value={selectedSubject}
                     onChange={(e) => setSelectedSubject(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full  text-gray-500 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     aria-label="Select subject"
                   >
                     {subjects.map(subject => (
@@ -345,7 +346,7 @@ export default function StudyMaterialsPage() {
                   <select
                     value={selectedType}
                     onChange={(e) => setSelectedType(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full  text-gray-500 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     aria-label="Select material type"
                   >
                     {types.map(type => (
@@ -358,7 +359,7 @@ export default function StudyMaterialsPage() {
                   <select
                     value={selectedLevel}
                     onChange={(e) => setSelectedLevel(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-2 border  text-gray-500 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     aria-label="Select difficulty level"
                   >
                     {levels.map(level => (
@@ -389,7 +390,7 @@ export default function StudyMaterialsPage() {
               Showing {filteredMaterials.length} results
               {searchTerm && ` for "${searchTerm}"`}
             </p>
-            <select className="p-2 border border-gray-300 rounded-lg text-sm" aria-label="Sort by">
+            <select className="p-2 border border-gray-300 text-gray-500 rounded-lg text-sm" aria-label="Sort by">
               <option>Sort by Relevance</option>
               <option>Sort by Rating</option>
               <option>Sort by Views</option>
@@ -413,11 +414,11 @@ export default function StudyMaterialsPage() {
                   >
                     <div className="flex space-x-6">
                       <div className="relative flex-shrink-0">
-                        <Image
+                        {/* <Image
                           src={material.thumbnail}
                           alt={material.title}
                           className="w-32 h-20 object-cover rounded-lg"
-                        />
+                        /> */}
                         {material.isPremium && (
                           <span className="absolute -top-2 -right-2 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-bold">
                             PRO
@@ -471,11 +472,11 @@ export default function StudyMaterialsPage() {
                   className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
                 >
                   <div className="relative">
-                    <Image
+                    {/* <Image
                       src={material.thumbnail}
                       alt={material.title}
                       className="w-full h-48 object-cover"
-                    />
+                    /> */}
                     {material.isPremium && (
                       <span className="absolute top-3 right-3 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-bold">
                         PREMIUM
@@ -507,7 +508,7 @@ export default function StudyMaterialsPage() {
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-2">
                         <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                        <span className="text-sm font-medium">{material.rating}</span>
+                        <span className="text-sm font-medium text-gray-500">{material.rating}</span>
                         <span className="text-gray-500">•</span>
                         <span className="text-sm text-gray-500">{material.views.toLocaleString()}</span>
                       </div>

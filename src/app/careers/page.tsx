@@ -173,7 +173,7 @@ export default function CareersPage() {
               <div className="bg-blue-100 p-3 rounded-lg w-fit mb-4">
                 <TrendingUp className="h-6 w-6 text-blue-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Average Salary Growth</h3>
+              <h3 className="text-xl text-gray-700 font-bold mb-2">Average Salary Growth</h3>
               <ResponsiveContainer width="100%" height={150}>
                 <LineChart data={salaryData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -189,7 +189,7 @@ export default function CareersPage() {
               <div className="bg-green-100 p-3 rounded-lg w-fit mb-4">
                 <ArrowUp className="h-6 w-6 text-green-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Job Growth by Field</h3>
+              <h3 className="text-xl text-gray-700 font-bold mb-2">Job Growth by Field</h3>
               <ResponsiveContainer width="100%" height={150}>
                 <BarChart data={growthData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -205,7 +205,7 @@ export default function CareersPage() {
               <div className="bg-purple-100 p-3 rounded-lg w-fit mb-4">
                 <Award className="h-6 w-6 text-purple-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Top Skills in Demand</h3>
+              <h3 className="text-xl text-gray-700 font-bold mb-2">Top Skills in Demand</h3>
               <ul className="space-y-2 text-gray-600">
                 <li className="flex justify-between">
                   <span>Programming</span>
@@ -229,8 +229,8 @@ export default function CareersPage() {
 
           {/* Stream Filter */}
           <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-            <h3 className="text-lg font-semibold mb-4">Filter by Stream:</h3>
-            <div className="flex flex-wrap gap-3">
+            <h3 className="text-lg  text-gray-700 font-bold mb-4">Filter by Stream:</h3>
+            <div className="flex flex-wrap gap-3 text-gray-700">
               <button
                 onClick={() => setSelectedStream('')}
                 className={`px-4 py-2 rounded-lg border ${!selectedStream ? 'bg-blue-600 text-white' : 'border-gray-300 hover:bg-gray-50'}`}

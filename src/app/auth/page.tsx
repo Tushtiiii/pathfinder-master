@@ -82,7 +82,7 @@ export default function AuthPage() {
 					<div className="mb-4">
 						<button
 							type="button"
-							onClick={() => signIn('kinde')}
+							onClick={() => router.push('/auth/kinde')}
 							className="w-full bg-yellow-500 text-white px-4 py-2 rounded-md mb-2"
 						>
 							Sign in with Kinde

@@ -332,7 +332,7 @@ export default function AptitudeQuiz() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleAnswer(index)}
-                className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
+                className={`w-full p-4 text-left text-gray-700 rounded-lg border-3 transition-all ${
                   selectedAnswer === index
                     ? 'border-purple-600 bg-purple-50 text-purple-900'
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
