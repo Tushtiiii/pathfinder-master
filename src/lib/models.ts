@@ -4,6 +4,9 @@ import { Schema, model, models } from 'mongoose';
 const UserSchema = new Schema({
   email: { type: String, required: true, unique: true },
   name: { type: String },
+  // Password fields for simple email/password auth (stored as hashed value + salt)
+  passwordHash: { type: String },
+  passwordSalt: { type: String },
   age: { type: Number },
   gender: { type: String },
   class: { type: String },

@@ -88,6 +88,10 @@ export default function Home() {
               height={360}
               sizes="(max-width: 768px) 90vw, 520px"
               className="rounded-lg shadow-xl max-w-full h-auto"
+              // Mark this image as priority (LCP) so Next.js preloads it and doesn't lazy-load
+              priority
+              // when CSS changes only one dimension, include an explicit auto rule to preserve aspect ratio
+              style={{ width: 'auto' }}
             />
             {/* <Card className="absolute -bottom-6 -left-6 p-6 shadow-lg">
                 <CardContent className="p-0">

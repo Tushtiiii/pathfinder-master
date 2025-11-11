@@ -7,7 +7,9 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "seed:colleges": "tsx scripts/seed-colleges.ts",
+    "seed:colleges:fromapi": "tsx scripts/seed-colleges-from-api.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",

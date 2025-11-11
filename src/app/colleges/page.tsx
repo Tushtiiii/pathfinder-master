@@ -1,12 +1,12 @@
 'use client';
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Colleges from './data';
 import { motion } from 'framer-motion';
-import { 
-  BookOpen, 
-  MapPin, 
-  Search, 
-  Filter, 
+import {
+  BookOpen,
+  MapPin,
+  Search,
+  Filter,
   Star,
   Users,
   Building,
@@ -42,108 +42,102 @@ interface College {
   type: 'Arts' | 'Science' | 'Commerce' | 'Engineering' | 'Medical' | 'Mixed';
 }
 
-const sampleColleges: College[] = [
-  {
-    id: 1,
-    name: "Government College of Arts and Science",
-    location: "Chennai",
-    state: "Tamil Nadu",
-    district: "Chennai",
-    programs: ["B.A. English", "B.A. History", "B.Sc. Mathematics", "B.Sc. Physics", "B.Com"],
-    fees: { general: 5000, sc_st: 2500, obc: 3500 },
-    cutoffs: { general: 85, sc_st: 75, obc: 80 },
-    facilities: ["Library", "Computer Lab", "Hostel", "Canteen", "Sports Complex"],
-    rating: 4.2,
-    students: 2500,
-    established: 1960,
-    medium: ["English", "Tamil"],
-    type: "Mixed"
-  },
-  {
-    id: 2,
-    name: "Regional Engineering College",
-    location: "Trichy",
-    state: "Tamil Nadu", 
-    district: "Tiruchirappalli",
-    programs: ["B.E. Computer Science", "B.E. Mechanical", "B.E. Electrical", "B.E. Civil"],
-    fees: { general: 15000, sc_st: 7500, obc: 10000 },
-    cutoffs: { general: 95, sc_st: 85, obc: 90 },
-    facilities: ["Library", "Computer Lab", "Hostel", "Laboratory", "Workshop", "Internet"],
-    rating: 4.5,
-    students: 3000,
-    established: 1964,
-    medium: ["English"],
-    type: "Engineering"
-  },
-  {
-    id: 3,
-    name: "Government Medical College",
-    location: "Madurai",
-    state: "Tamil Nadu",
-    district: "Madurai",
-    programs: ["MBBS", "B.Sc. Nursing", "B.Pharma"],
-    fees: { general: 25000, sc_st: 12500, obc: 18000 },
-    cutoffs: { general: 98, sc_st: 95, obc: 96 },
-    facilities: ["Hospital", "Library", "Hostel", "Laboratory", "Research Center"],
-    rating: 4.7,
-    students: 1500,
-    established: 1954,
-    medium: ["English"],
-    type: "Medical"
-  },
-  {
-    id: 4,
-    name: "Government Commerce College",
-    location: "Coimbatore",
-    state: "Tamil Nadu",
-    district: "Coimbatore", 
-    programs: ["B.Com", "BBA", "B.Com (CA)", "M.Com"],
-    fees: { general: 4000, sc_st: 2000, obc: 3000 },
-    cutoffs: { general: 80, sc_st: 70, obc: 75 },
-    facilities: ["Library", "Computer Lab", "Auditorium", "Canteen"],
-    rating: 4.0,
-    students: 2000,
-    established: 1970,
-    medium: ["English", "Tamil"],
-    type: "Commerce"
-  },
-  {
-    id: 5,
-    name: "State Science College",
-    location: "Salem",
-    state: "Tamil Nadu",
-    district: "Salem",
-    programs: ["B.Sc. Chemistry", "B.Sc. Biology", "B.Sc. Physics", "B.Sc. Mathematics"],
-    fees: { general: 6000, sc_st: 3000, obc: 4000 },
-    cutoffs: { general: 88, sc_st: 78, obc: 82 },
-    facilities: ["Library", "Laboratory", "Hostel", "Internet", "Sports Ground"],
-    rating: 4.3,
-    students: 1800,
-    established: 1965,
-    medium: ["English", "Tamil"],
-    type: "Science"
-  }
-];
+interface DBCollege extends Partial<College> {
+  _id?: string;
+}
+
 
 export default function CollegesDirectory() {
-  const [colleges] = useState(sampleColleges);
+  // Start with the local static dataset so the UI works immediately if the API is unavailable
+  const [colleges, setColleges] = useState<DBCollege[]>(Colleges as DBCollege[]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedState, setSelectedState] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [showFilters, setShowFilters] = useState(false);
 
-  const filteredColleges = colleges.filter(college => {
-    const matchesSearch = college.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         college.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         college.programs.some(program => program.toLowerCase().includes(searchTerm.toLowerCase()));
+  // Use an environment-configurable API URL. Set NEXT_PUBLIC_COLLEGES_API in .env.local
+  // If an external API is not configured, fall back to the local API route
+  const API_URL = process.env.NEXT_PUBLIC_COLLEGES_API || '/api/colleges';
+
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        const res = await fetch(API_URL);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (!mounted) return;
+
+        // The external API returns keys like "State", "District", "College Name",
+        // "Year of Establishment\n" etc. Map those to the local shape used by the UI.
+        const mapped = (Array.isArray(data) ? data : []).map((item: Record<string, unknown>) => {
+          const get = (k: string) => {
+            const v = item[k];
+            if (v === undefined || v === null) return undefined;
+            if (typeof v === 'string' || typeof v === 'number') return v;
+            return undefined;
+          };
+
+          const yearKey = Object.keys(item).find(k => k.toLowerCase().includes('year of establishment')) || 'Year of Establishment';
+          const yearVal = get(yearKey) || get('Year of Establishment\n') || get('Year of Establishment');
+
+          const name = (get('College Name') || get('College_Name') || get('University Name') || get('University_Name') || '') as string;
+          const location = (get('Location') || get('Address') || '') as string;
+          const district = (get('District') || '') as string;
+          const state = (get('State') || '') as string;
+          const specialised = get('Specialised in') as string | undefined;
+          const rating = (get('Rating') as number) || 0;
+          const students = (get('Students') as number) || 0;
+          const mediumVal = (get('Medium') as string) || '';
+          const typeVal = (get('College Type') || get('University Type') || get('CollegeType') || '') as string;
+
+          return {
+            name,
+            location,
+            district,
+            state,
+            programs: specialised ? [specialised] : [],
+            fees: { general: 0, sc_st: 0, obc: 0 },
+            cutoffs: { general: 0, sc_st: 0, obc: 0 },
+            facilities: [],
+            rating,
+            students,
+            established: yearVal ? parseInt(String(yearVal).trim()) || undefined : undefined,
+            medium: mediumVal ? [mediumVal] : [],
+            type: typeVal,
+            raw: item,
+          } as DBCollege;
+        });
+
+        setColleges(mapped || []);
+      } catch (err) {
+        console.error('Failed to load colleges:', err);
+      }
+    };
+
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [API_URL]);
+
+  const filteredColleges = colleges.filter((college) => {
+    const name = (college.name || '').toString().toLowerCase();
+    const location = (college.location || '').toString().toLowerCase();
+    const programs = (college.programs || []).map(p => p.toString().toLowerCase());
+    const matchesSearch =
+      name.includes(searchTerm.toLowerCase()) ||
+      location.includes(searchTerm.toLowerCase()) ||
+      programs.some((program: string) => program.includes(searchTerm.toLowerCase()));
+
     const matchesState = !selectedState || college.state === selectedState;
     const matchesType = !selectedType || college.type === selectedType;
-    
+
     return matchesSearch && matchesState && matchesType;
   });
 
-  const states = Array.from(new Set(colleges.map(college => college.state)));
-  const types = Array.from(new Set(colleges.map(college => college.type)));
+  const states = Array.from(new Set(colleges.map((college) => college.state)));
+  const types = Array.from(new Set(colleges.map((college) => college.type)));
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -257,7 +251,7 @@ export default function CollegesDirectory() {
           <div className="space-y-6">
             {filteredColleges.map((college, index) => (
               <motion.div
-                key={college.id}
+                key={college._id || college.id || index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -295,7 +289,7 @@ export default function CollegesDirectory() {
                     <div className="mb-4">
                       <h4 className="font-semibold text-gray-900 mb-2">Programs Offered:</h4>
                       <div className="flex flex-wrap gap-2">
-                        {college.programs.map((program, idx) => (
+                        {(college.programs || []).map((program, idx) => (
                           <span key={idx} className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm">
                             {program}
                           </span>
@@ -306,18 +300,18 @@ export default function CollegesDirectory() {
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div>
                         <h5 className="font-semibold text-gray-900 mb-1">Annual Fees (₹)</h5>
-                        <div className="text-sm text-gray-600">
-                          <div>General: ₹{college.fees.general.toLocaleString()}</div>
-                          <div>SC/ST: ₹{college.fees.sc_st.toLocaleString()}</div>
-                          <div>OBC: ₹{college.fees.obc.toLocaleString()}</div>
+                          <div className="text-sm text-gray-600">
+                          <div>General: ₹{(college.fees?.general || 0).toLocaleString()}</div>
+                          <div>SC/ST: ₹{(college.fees?.sc_st || 0).toLocaleString()}</div>
+                          <div>OBC: ₹{(college.fees?.obc || 0).toLocaleString()}</div>
                         </div>
                       </div>
                       <div>
                         <h5 className="font-semibold text-gray-900 mb-1">Cut-off (%)</h5>
                         <div className="text-sm text-gray-600">
-                          <div>General: {college.cutoffs.general}%</div>
-                          <div>SC/ST: {college.cutoffs.sc_st}%</div>
-                          <div>OBC: {college.cutoffs.obc}%</div>
+                          <div>General: {college.cutoffs?.general ?? 0}%</div>
+                          <div>SC/ST: {college.cutoffs?.sc_st ?? 0}%</div>
+                          <div>OBC: {college.cutoffs?.obc ?? 0}%</div>
                         </div>
                       </div>
                     </div>
@@ -325,7 +319,7 @@ export default function CollegesDirectory() {
                     <div>
                       <h5 className="font-semibold text-gray-900 mb-2">Facilities:</h5>
                       <div className="flex flex-wrap gap-3">
-                        {college.facilities.map((facility, idx) => (
+                        {(college.facilities || []).map((facility, idx) => (
                           <div key={idx} className="flex items-center text-gray-600 text-sm">
                             {facility === 'Library' && <BookMarked className="h-4 w-4 mr-1" />}
                             {facility === 'Computer Lab' && <FlaskConical className="h-4 w-4 mr-1" />}
@@ -352,11 +346,11 @@ export default function CollegesDirectory() {
                         Get Directions
                       </button>
                     </div>
-                    
+
                     <div className="mt-4 pt-4 border-t border-gray-200">
                       <h6 className="font-medium text-gray-900 mb-2">Medium of Instruction:</h6>
                       <div className="flex flex-wrap gap-1">
-                        {college.medium.map((lang, idx) => (
+                        {(college.medium || []).map((lang, idx) => (
                           <span key={idx} className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">
                             {lang}
                           </span>

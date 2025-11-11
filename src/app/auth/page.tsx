@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import type { SignInResponse } from 'next-auth/react';
@@ -79,15 +78,6 @@ export default function AuthPage() {
 				</div>
 
 				<form onSubmit={handleSubmit} className="space-y-4">
-					<div className="mb-4">
-						<button
-							type="button"
-							onClick={() => router.push('/auth/kinde')}
-							className="w-full bg-yellow-500 text-white px-4 py-2 rounded-md mb-2"
-						>
-							Sign in with Kinde
-						</button>
-					</div>
 					{mode === 'signup' && (
 						<div>
 							<label className="block text-sm text-gray-700">Full name</label>
@@ -117,4 +107,3 @@ export default function AuthPage() {
 		</div>
 	);
 }
-

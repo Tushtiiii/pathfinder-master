@@ -1,12 +1,11 @@
 import NextAuth, { type NextAuthOptions, type Session } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
-// OAuth/Kinde provider removed to avoid typing conflicts; re-add when typings are resolved.
 import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
 import clientPromise, { connectToDatabase } from '../../../../lib/mongodb';
 import { User } from '../../../../lib/models';
 
-const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
   adapter: MongoDBAdapter(clientPromise),
   providers: [
     CredentialsProvider({
