@@ -5,8 +5,15 @@ import { College } from '../../../lib/models';
 // This route will either return colleges from the database or, if an external
 // source is configured via COLLEGES_SOURCE_URL or NEXT_PUBLIC_COLLEGES_API, will
 // proxy that remote API server-side and map its fields into the local shape.
-export async function GET() {
+export async function GET(request: Request) {
   const remoteUrl = process.env.COLLEGES_SOURCE_URL || process.env.NEXT_PUBLIC_COLLEGES_API;
+  const url = new URL(request.url);
+  const pageParam = Number(url.searchParams.get('page') || '1');
+  const limitParam = Number(url.searchParams.get('limit') || '20');
+  const fieldsParam = url.searchParams.get('fields') || ''; // comma-separated
+  const page = Math.max(1, isNaN(pageParam) ? 1 : pageParam);
+  const limit = Math.min(100, Math.max(1, isNaN(limitParam) ? 20 : limitParam));
+  const fields = fieldsParam.split(',').map(f => f.trim()).filter(Boolean);
 
   // If a remote URL is provided, fetch and map it server-side (avoids CORS)
   if (remoteUrl) {
@@ -63,7 +70,21 @@ export async function GET() {
         } as Partial<typeof College>;
       });
 
-      return NextResponse.json(mapped, { status: 200 });
+      // Paginate the mapped results
+      const total = mapped.length;
+      const start = (page - 1) * limit;
+      const end = start + limit;
+      const pageItems = mapped.slice(start, end);
+
+      // Optionally pick only requested fields
+      const pick = (obj: Record<string, unknown>) => {
+        if (fields.length === 0) return obj;
+        const out: Record<string, unknown> = {};
+        for (const k of fields) if (k in obj) out[k] = obj[k];
+        return out;
+      };
+
+      return NextResponse.json({ data: pageItems.map(pick), meta: { total, page, limit, totalPages: Math.ceil(total / limit) } }, { status: 200 });
     } catch (err) {
       console.error('Error proxying remote colleges API:', err);
       return NextResponse.json({ error: 'Failed to fetch remote API' }, { status: 502 });
@@ -73,8 +94,18 @@ export async function GET() {
   // Otherwise, return from the database
   try {
     await connectToDatabase();
-    const colleges = await College.find().lean();
-    return NextResponse.json(colleges, { status: 200 });
+
+    // Build projection if fields requested
+    let projection: Record<string, 1> | undefined = undefined;
+    if (fields.length > 0) {
+      projection = {};
+      for (const f of fields) projection[f] = 1;
+    }
+
+    const total = await College.countDocuments();
+    const docs = await College.find({}, projection).skip((page - 1) * limit).limit(limit).lean();
+
+    return NextResponse.json({ data: docs, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } }, { status: 200 });
   } catch (err) {
     console.error('Error fetching colleges from DB:', err);
     return NextResponse.json({ error: 'Failed to fetch colleges' }, { status: 500 });

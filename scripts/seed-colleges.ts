@@ -14,9 +14,9 @@ async function seedColleges() {
     }
 
     // Normalize documents: remove `id` from static file and let MongoDB assign _id
-    const docs = colleges.map((c: any) => {
-      const copy = { ...c };
-      delete copy.id;
+    const docs = colleges.map((c) => {
+      const copy = { ...c } as Record<string, unknown>;
+      delete (copy as Record<string, unknown>)['id'];
       return copy;
     });
 
@@ -24,9 +24,11 @@ async function seedColleges() {
     await College.insertMany(docs, { ordered: false });
 
     console.log(`Seeded ${docs.length} colleges into the database.`);
-  } catch (err: any) {
+  } catch (err) {
     // If duplicates exist, insertMany with ordered:false will throw — still OK
-    console.error('Seeding finished with error (this may be benign for duplicates):', err.message || err);
+    const e = err as { message?: string } | Error | undefined;
+    const msg = e && 'message' in e ? (e as { message?: string }).message : String(e);
+    console.error('Seeding finished with error (this may be benign for duplicates):', msg);
   } finally {
     process.exit(0);
   }

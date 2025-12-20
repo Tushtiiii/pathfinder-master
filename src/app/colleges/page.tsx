@@ -54,23 +54,34 @@ export default function CollegesDirectory() {
   const [selectedState, setSelectedState] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(15);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalResults, setTotalResults] = useState<number | null>(null);
 
   // Use an environment-configurable API URL. Set NEXT_PUBLIC_COLLEGES_API in .env.local
   // If an external API is not configured, fall back to the local API route
-  const API_URL = process.env.NEXT_PUBLIC_COLLEGES_API || '/api/colleges';
+  const API_URL = process.env.NEXT_PUBLIC_COLLEGES_API;
+  const apiUrl = API_URL ?? '/api/colleges';
+  console.log('API_URL:', API_URL, 'using', apiUrl);
 
   useEffect(() => {
     let mounted = true;
     const load = async () => {
       try {
-        const res = await fetch(API_URL);
+        const fetchUrl = `${apiUrl}?page=${page}&limit=${limit}`;
+        console.log('Fetching colleges from API:', fetchUrl);
+        const res = await fetch(fetchUrl);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         if (!mounted) return;
+        // The API returns { data: [...], meta: { total, page, limit, totalPages } }
+        const items = Array.isArray(data) ? data : (data && Array.isArray(data.data) ? data.data : []);
+        type MetaType = { total?: number; page?: number; limit?: number; totalPages?: number };
+        const meta = data && typeof data === 'object' && 'meta' in data ? (data as unknown as { meta?: MetaType }).meta : undefined;
 
-        // The external API returns keys like "State", "District", "College Name",
-        // "Year of Establishment\n" etc. Map those to the local shape used by the UI.
-        const mapped = (Array.isArray(data) ? data : []).map((item: Record<string, unknown>) => {
+        // Map remote items into the same shape the UI expects when items are raw remote objects
+        const mapped = items.map((item: Record<string, unknown>) => {
           const get = (k: string) => {
             const v = item[k];
             if (v === undefined || v === null) return undefined;
@@ -110,6 +121,8 @@ export default function CollegesDirectory() {
         });
 
         setColleges(mapped || []);
+        setTotalResults(meta?.total ?? (mapped.length ?? 0));
+        setTotalPages(meta?.totalPages ?? 1);
       } catch (err) {
         console.error('Failed to load colleges:', err);
       }
@@ -119,7 +132,7 @@ export default function CollegesDirectory() {
     return () => {
       mounted = false;
     };
-  }, [API_URL]);
+  },[apiUrl, page, limit]);
 
   const filteredColleges = colleges.filter((college) => {
     const name = (college.name || '').toString().toLowerCase();
@@ -237,7 +250,7 @@ export default function CollegesDirectory() {
           {/* Results */}
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-semibold text-gray-900">
-              {filteredColleges.length} Colleges Found
+              {totalResults ?? filteredColleges.length} Colleges Found
             </h2>
             <select className="p-2 border text-gray-700 border-gray-300 rounded-lg" aria-label="Sort colleges by">
               <option>Sort by Rating</option>
@@ -362,6 +375,42 @@ export default function CollegesDirectory() {
               </motion.div>
             ))}
           </div>
+
+          {/* Pagination Controls */}
+          <nav className="mt-6 flex items-center justify-center space-x-2">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page <= 1}
+              className="px-3 py-1 rounded border bg-white disabled:opacity-50"
+            >
+              Prev
+            </button>
+
+            {Array.from({ length: Math.max(1, totalPages) }).map((_, i) => {
+              const p = i + 1;
+              // show a small window around current page
+              const show = Math.abs(p - page) <= 3 || p === 1 || p === totalPages;
+              if (!show) return <span key={p} className="px-2">...</span>;
+              return (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  aria-current={p === page}
+                  className={`px-3 py-1 rounded border ${p === page ? 'bg-blue-600 text-white' : 'bg-white'}`}
+                >
+                  {p}
+                </button>
+              );
+            })}
+
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+              className="px-3 py-1 rounded border bg-white disabled:opacity-50"
+            >
+              Next
+            </button>
+          </nav>
         </motion.div>
       </div>
     </div>

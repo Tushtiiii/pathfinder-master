@@ -56,6 +56,20 @@ export default function AuthPage() {
 		}
 	};
 
+	const handleGoogleSignIn = async () => {
+		setMessage(null);
+		setLoading(true);
+		try {
+			// Redirect to Google sign-in; NextAuth will handle the OAuth flow.
+			await signIn('google', { callbackUrl: '/dashboard' });
+		} catch (err) {
+			console.error('Google sign-in error', err);
+			setMessage('Google sign-in failed');
+		} finally {
+			setLoading(false);
+		}
+	};
+
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
 			<div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
@@ -103,6 +117,29 @@ export default function AuthPage() {
 
 					{message && <p className="text-sm text-red-600 mt-2">{message}</p>}
 				</form>
+
+				<div className="mt-6">
+					<div className="flex items-center gap-3">
+						<hr className="flex-1 border-t border-gray-200" />
+						<span className="text-sm text-gray-500">or</span>
+						<hr className="flex-1 border-t border-gray-200" />
+					</div>
+					<div className="mt-4">
+						<button
+							onClick={handleGoogleSignIn}
+							disabled={loading}
+							className="w-full flex items-center justify-center gap-3 border border-gray-200 rounded-md px-4 py-2 hover:bg-gray-50"
+						>
+							{/* Inline Google icon */}
+							<span className="w-5 h-5">
+								<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+									<path fill="#fbbc05" d="M43.6 20.5h-2.1v-.1H24v7.5h11.3c-1.6 4.4-5.6 7.6-10.7 7.6-6.3 0-11.5-5.1-11.5-11.5S18.3 12.5 24.6 12.5c3.1 0 5.9 1.2 8 3.3l5.1-5.1C35.6 7 30.3 4.5 24.6 4.5 12.9 4.5 3.6 13.8 3.6 25.5S12.9 46.5 24.6 46.5c11.8 0 20.9-8.6 20.9-21 0-1.4-.2-2.7-.9-4z"/>
+							</svg>
+							</span>
+							<span className="text-sm font-medium">Sign in with Google</span>
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 	);

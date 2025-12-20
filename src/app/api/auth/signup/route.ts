@@ -50,8 +50,13 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ ok: true, id: user._id });
-  } catch (err) {
+  } catch (err: unknown) {
     console.error('Signup error', err);
+    // In development return the error message to help debugging. Do not expose in production.
+    if (process.env.NODE_ENV !== 'production') {
+      const message = err instanceof Error ? err.message : String(err);
+      return NextResponse.json({ error: 'internal', details: message }, { status: 500 });
+    }
     return NextResponse.json({ error: 'internal' }, { status: 500 });
   }
 }

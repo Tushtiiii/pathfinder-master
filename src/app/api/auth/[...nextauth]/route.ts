@@ -1,6 +1,7 @@
 import NextAuth, { type NextAuthOptions, type Session } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
 import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
 import clientPromise, { connectToDatabase } from '../../../../lib/mongodb';
 import { User } from '../../../../lib/models';
@@ -36,7 +37,14 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
+
+    // Google OAuth provider. Reads from env vars. Accepts both GOOGLE_* and AUTH_GOOGLE_* names for compatibility.
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID ?? process.env.AUTH_GOOGLE_ID ?? '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? process.env.AUTH_GOOGLE_SECRET ?? '',
+    }),
   ],
+
   session: {
     strategy: 'jwt',
   },
@@ -49,7 +57,7 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET || 'change-this-secret',
+  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET || 'default_secret',
 };
 
 const handler = NextAuth(authOptions);

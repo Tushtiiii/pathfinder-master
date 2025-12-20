@@ -1,0 +1,640 @@
+{
+    "data": [
+        {
+            "name": "Jawaharlal Nehru Rajkeeya  Mahavidyalaya (Id: C-6498)",
+            "location": "Urban",
+            "district": "Nicobars",
+            "state": "Andaman and Nicobar Islands",
+            "programs": [
+                "No"
+            ],
+            "fees": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "cutoffs": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "facilities": [],
+            "rating": 0,
+            "students": 0,
+            "established": 1967,
+            "medium": [],
+            "type": "Affiliated College",
+            "raw": {
+                "State": "Andaman and Nicobar Islands",
+                "District": "Nicobars",
+                "University Type": "Central University",
+                "University Name": "Pondicherry Univeristy, Puducherry (Id: U-0369)",
+                "College Name": "Jawaharlal Nehru Rajkeeya  Mahavidyalaya (Id: C-6498)",
+                "College Type": "Affiliated College",
+                "Address": "Jawaharlal Nehru Rajkeeya  Mahavidyalaya, M S Road, Port Blair",
+                "Website": "jnrm.and.nic.in",
+                "Management": "Central Government",
+                "Year of Establishment\n": "1967",
+                "Specialised in": "No",
+                "Location": "Urban",
+                "": "",
+                "Upload Year": "2019",
+                "The Institute Added In Survey Year": "2010"
+            }
+        },
+        {
+            "name": "Regional Medical Research Institute (I.C.M.R.) (Id: C-6575)",
+            "location": "Urban",
+            "district": "Nicobars",
+            "state": "Andaman and Nicobar Islands",
+            "programs": [
+                "Medical-Others"
+            ],
+            "fees": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "cutoffs": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "facilities": [],
+            "rating": 0,
+            "students": 0,
+            "established": 1983,
+            "medium": [],
+            "type": "Affiliated College",
+            "raw": {
+                "State": "Andaman and Nicobar Islands",
+                "District": "Nicobars",
+                "University Type": "Central University",
+                "University Name": "Pondicherry Univeristy, Puducherry (Id: U-0369)",
+                "College Name": "Regional Medical Research Institute (I.C.M.R.) (Id: C-6575)",
+                "College Type": "Affiliated College",
+                "Address": "Post Bag No 13, Dollygunj, Port Blair",
+                "Website": "http://www.rmrc.res.in",
+                "Management": "Central Government",
+                "Year of Establishment\n": "1983",
+                "Specialised in": "Medical-Others",
+                "Location": "Urban",
+                "": "",
+                "Upload Year": "2019",
+                "The Institute Added In Survey Year": "2010"
+            }
+        },
+        {
+            "name": "Tagore Government College of Education (Id: C-6574)",
+            "location": "Urban",
+            "district": "Nicobars",
+            "state": "Andaman and Nicobar Islands",
+            "programs": [
+                "Education/Teacher Education"
+            ],
+            "fees": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "cutoffs": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "facilities": [],
+            "rating": 0,
+            "students": 0,
+            "established": 1981,
+            "medium": [],
+            "type": "Affiliated College",
+            "raw": {
+                "State": "Andaman and Nicobar Islands",
+                "District": "Nicobars",
+                "University Type": "Central University",
+                "University Name": "Pondicherry Univeristy, Puducherry (Id: U-0369)",
+                "College Name": "Tagore Government College of Education (Id: C-6574)",
+                "College Type": "Affiliated College",
+                "Address": "M.G. Road, Middle Point, Port Blair - 744101",
+                "Website": "www.tgce.and.nic.in",
+                "Management": "State Government",
+                "Year of Establishment\n": "1981",
+                "Specialised in": "Education/Teacher Education",
+                "Location": "Urban",
+                "": "",
+                "Upload Year": "2019",
+                "The Institute Added In Survey Year": "2010"
+            }
+        },
+        {
+            "name": "Zoological Survey of India (Id: C-6560)",
+            "location": "Urban",
+            "district": "Nicobars",
+            "state": "Andaman and Nicobar Islands",
+            "programs": [
+                "Science"
+            ],
+            "fees": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "cutoffs": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "facilities": [],
+            "rating": 0,
+            "students": 0,
+            "established": 1977,
+            "medium": [],
+            "type": "Affiliated College",
+            "raw": {
+                "State": "Andaman and Nicobar Islands",
+                "District": "Nicobars",
+                "University Type": "Central University",
+                "University Name": "Pondicherry Univeristy, Puducherry (Id: U-0369)",
+                "College Name": "Zoological Survey of India (Id: C-6560)",
+                "College Type": "Affiliated College",
+                "Address": "Zoological Survey of India, Andaman & Nicobar Regional Centre, National Coral Reef Research Institute, Horticulture Road, Haddo, Port Blair",
+                "Website": "www.zsi.gov.in",
+                "Management": "Central Government",
+                "Year of Establishment\n": "1977",
+                "Specialised in": "Science",
+                "Location": "Urban",
+                "": "",
+                "Upload Year": "2019",
+                "The Institute Added In Survey Year": "2010"
+            }
+        },
+        {
+            "name": "Mahatma Gandhi Govt. College (Id: C-6547)",
+            "location": "Rural",
+            "district": "North and Middle Andaman",
+            "state": "Andaman and Nicobar Islands",
+            "programs": [
+                "No"
+            ],
+            "fees": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "cutoffs": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "facilities": [],
+            "rating": 0,
+            "students": 0,
+            "established": 1990,
+            "medium": [],
+            "type": "Affiliated College",
+            "raw": {
+                "State": "Andaman and Nicobar Islands",
+                "District": "North and Middle Andaman",
+                "University Type": "Central University",
+                "University Name": "Pondicherry Univeristy, Puducherry (Id: U-0369)",
+                "College Name": "Mahatma Gandhi Govt. College (Id: C-6547)",
+                "College Type": "Affiliated College",
+                "Address": "Rampur, Mayabunder, Mayabunder",
+                "Website": "http://mggcm.and.nic.in",
+                "Management": "Central Government",
+                "Year of Establishment\n": "1990",
+                "Specialised in": "No",
+                "Location": "Rural",
+                "": "",
+                "Upload Year": "2019",
+                "The Institute Added In Survey Year": "2010"
+            }
+        },
+        {
+            "name": "Andaman and Nicobar inslands Institute of medical sciences (Id: C-60180)",
+            "location": "Urban",
+            "district": "South Andamans",
+            "state": "Andaman and Nicobar Islands",
+            "programs": [
+                "Medical-Allopathy"
+            ],
+            "fees": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "cutoffs": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "facilities": [],
+            "rating": 0,
+            "students": 0,
+            "established": 2015,
+            "medium": [],
+            "type": "Affiliated College",
+            "raw": {
+                "State": "Andaman and Nicobar Islands",
+                "District": "South Andamans",
+                "University Type": "Central University",
+                "University Name": "Pondicherry Univeristy, Puducherry (Id: U-0369)",
+                "College Name": "Andaman and Nicobar inslands Institute of medical sciences (Id: C-60180)",
+                "College Type": "Affiliated College",
+                "Address": "DHS Annexe Building, Atlanta Point, Port Blair",
+                "Website": "www.aniims.org",
+                "Management": "Central Government",
+                "Year of Establishment\n": "2015",
+                "Specialised in": "Medical-Allopathy",
+                "Location": "Urban",
+                "": "",
+                "Upload Year": "2019",
+                "The Institute Added In Survey Year": "2018"
+            }
+        },
+        {
+            "name": "ANDAMAN COLLEGE (ANCOL) (Id: C-50934)",
+            "location": "Urban",
+            "district": "South Andamans",
+            "state": "Andaman and Nicobar Islands",
+            "programs": [
+                "No"
+            ],
+            "fees": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "cutoffs": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "facilities": [],
+            "rating": 0,
+            "students": 0,
+            "established": 2014,
+            "medium": [],
+            "type": "Affiliated College",
+            "raw": {
+                "State": "Andaman and Nicobar Islands",
+                "District": "South Andamans",
+                "University Type": "Central University",
+                "University Name": "Pondicherry Univeristy, Puducherry (Id: U-0369)",
+                "College Name": "ANDAMAN COLLEGE (ANCOL) (Id: C-50934)",
+                "College Type": "Affiliated College",
+                "Address": "CHAKKARGOAN, SOUTH ANDAMAN, PORT BLAIR",
+                "Website": "www.ancol.andaman.gov.in",
+                "Management": "Central Government",
+                "Year of Establishment\n": "2014",
+                "Specialised in": "No",
+                "Location": "Urban",
+                "": "",
+                "Upload Year": "2020",
+                "The Institute Added In Survey Year": "2014"
+            }
+        },
+        {
+            "name": "ANDAMAN LAW COLLEGE (Id: C-63976)",
+            "location": "Urban",
+            "district": "South Andamans",
+            "state": "Andaman and Nicobar Islands",
+            "programs": [
+                "Law"
+            ],
+            "fees": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "cutoffs": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "facilities": [],
+            "rating": 0,
+            "students": 0,
+            "established": 2016,
+            "medium": [],
+            "type": "Affiliated College",
+            "raw": {
+                "State": "Andaman and Nicobar Islands",
+                "District": "South Andamans",
+                "University Type": "Central University",
+                "University Name": "Pondicherry Univeristy, Puducherry (Id: U-0369)",
+                "College Name": "ANDAMAN LAW COLLEGE (Id: C-63976)",
+                "College Type": "Affiliated College",
+                "Address": "Andaman Law College, Transport Bhawan, Phoenix Bay",
+                "Website": "https://andamanlawcollege.andaman.gov.in",
+                "Management": "State Government",
+                "Year of Establishment\n": "2016",
+                "Specialised in": "Law",
+                "Location": "Urban",
+                "": "",
+                "Upload Year": "2020",
+                "The Institute Added In Survey Year": "2020"
+            }
+        },
+        {
+            "name": "Dr.B.R. Ambedkar Institute of Technology (Id: C-6528)",
+            "location": "Urban",
+            "district": "South Andamans",
+            "state": "Andaman and Nicobar Islands",
+            "programs": [
+                "No"
+            ],
+            "fees": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "cutoffs": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "facilities": [],
+            "rating": 0,
+            "students": 0,
+            "established": 1984,
+            "medium": [],
+            "type": "Affiliated College",
+            "raw": {
+                "State": "Andaman and Nicobar Islands",
+                "District": "South Andamans",
+                "University Type": "Central University",
+                "University Name": "Pondicherry Univeristy, Puducherry (Id: U-0369)",
+                "College Name": "Dr.B.R. Ambedkar Institute of Technology (Id: C-6528)",
+                "College Type": "Affiliated College",
+                "Address": "Pahargaon, Junglighat Post office Pin 744103, South Andaman District, Port Blair.",
+                "Website": "http://dbragpt.andaman.gov.in",
+                "Management": "Central Government",
+                "Year of Establishment\n": "1984",
+                "Specialised in": "No",
+                "Location": "Urban",
+                "": "",
+                "Upload Year": "2020",
+                "The Institute Added In Survey Year": "2010"
+            }
+        },
+        {
+            "name": "College of Agricultural Engineering, Madakasira (Id: C-26381)",
+            "location": "Rural",
+            "district": "Anantapur",
+            "state": "Andhra Pradesh",
+            "programs": [
+                "Engineering & Technology"
+            ],
+            "fees": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "cutoffs": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "facilities": [],
+            "rating": 0,
+            "students": 0,
+            "established": 2008,
+            "medium": [],
+            "type": "Constituent / University College",
+            "raw": {
+                "State": "Andhra Pradesh",
+                "District": "Anantapur",
+                "University Type": "State Public University",
+                "University Name": "Acharya NG Ranga Agricultural University, Guntur (Id: U-0004)",
+                "College Name": "College of Agricultural Engineering, Madakasira (Id: C-26381)",
+                "College Type": "Constituent / University College",
+                "Address": "Penukonda Road, Madakasira, College of Agricultural Engineering, Madakasira, MADAKASIRA",
+                "Website": "",
+                "Management": "State Government",
+                "Year of Establishment\n": "2008",
+                "Specialised in": "Engineering & Technology",
+                "Location": "Rural",
+                "": "",
+                "Upload Year": "2020",
+                "The Institute Added In Survey Year": "2010"
+            }
+        },
+        {
+            "name": "J.C.Diwakar Reddy Agricultural College, Tadiptri (Id: C-56609)",
+            "location": "Rural",
+            "district": "Anantapur",
+            "state": "Andhra Pradesh",
+            "programs": [
+                "Agriculture"
+            ],
+            "fees": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "cutoffs": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "facilities": [],
+            "rating": 0,
+            "students": 0,
+            "established": 2016,
+            "medium": [],
+            "type": "Affiliated College",
+            "raw": {
+                "State": "Andhra Pradesh",
+                "District": "Anantapur",
+                "University Type": "State Public University",
+                "University Name": "Acharya NG Ranga Agricultural University, Guntur (Id: U-0004)",
+                "College Name": "J.C.Diwakar Reddy Agricultural College, Tadiptri (Id: C-56609)",
+                "College Type": "Affiliated College",
+                "Address": "Juturu Campus, Peddapappur Mandal, Anantapuramu Dist, Tadipatri",
+                "Website": "jcdragriandhorti.com",
+                "Management": "Private Aided",
+                "Year of Establishment\n": "2016",
+                "Specialised in": "Agriculture",
+                "Location": "Rural",
+                "": "",
+                "Upload Year": "2020",
+                "The Institute Added In Survey Year": "2016"
+            }
+        },
+        {
+            "name": "Sri Krishnadevaraya College of Agricultural Sciences (Id: C-56607)",
+            "location": "Rural",
+            "district": "Anantapur",
+            "state": "Andhra Pradesh",
+            "programs": [
+                "Agriculture"
+            ],
+            "fees": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "cutoffs": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "facilities": [],
+            "rating": 0,
+            "students": 0,
+            "established": 2016,
+            "medium": [],
+            "type": "Affiliated College",
+            "raw": {
+                "State": "Andhra Pradesh",
+                "District": "Anantapur",
+                "University Type": "State Public University",
+                "University Name": "Acharya NG Ranga Agricultural University, Guntur (Id: U-0004)",
+                "College Name": "Sri Krishnadevaraya College of Agricultural Sciences (Id: C-56607)",
+                "College Type": "Affiliated College",
+                "Address": "SANAPA ROAD, ALAMURU POST, ANANTAPURAMU",
+                "Website": "www.skcas.ac.in",
+                "Management": "Private Un-Aided",
+                "Year of Establishment\n": "2016",
+                "Specialised in": "Agriculture",
+                "Location": "Rural",
+                "": "",
+                "Upload Year": "2020",
+                "The Institute Added In Survey Year": "2016"
+            }
+        },
+        {
+            "name": "Adarsha College of Nursing, Anantapur (Id: C-30633)",
+            "location": "Rural",
+            "district": "Anantapur",
+            "state": "Andhra Pradesh",
+            "programs": [
+                "Nursing"
+            ],
+            "fees": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "cutoffs": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "facilities": [],
+            "rating": 0,
+            "students": 0,
+            "established": 2004,
+            "medium": [],
+            "type": "Affiliated College",
+            "raw": {
+                "State": "Andhra Pradesh",
+                "District": "Anantapur",
+                "University Type": "State Public University",
+                "University Name": "Dr. N.T.R. University of Health Sciences, Vijaywada (Id: U-0008)",
+                "College Name": "Adarsha College of Nursing, Anantapur (Id: C-30633)",
+                "College Type": "Affiliated College",
+                "Address": "mahanandi irrigation systems backside,k.k.colony, kalyanadurgam road, ANANTAPURAMU",
+                "Website": "",
+                "Management": "Private Un-Aided",
+                "Year of Establishment\n": "2004",
+                "Specialised in": "Nursing",
+                "Location": "Rural",
+                "": "",
+                "Upload Year": "2020",
+                "The Institute Added In Survey Year": "2010"
+            }
+        },
+        {
+            "name": "Balaji College of Nursing, Anantapur (Id: C-30510)",
+            "location": "Rural",
+            "district": "Anantapur",
+            "state": "Andhra Pradesh",
+            "programs": [
+                "Nursing"
+            ],
+            "fees": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "cutoffs": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "facilities": [],
+            "rating": 0,
+            "students": 0,
+            "established": 2006,
+            "medium": [],
+            "type": "Affiliated College",
+            "raw": {
+                "State": "Andhra Pradesh",
+                "District": "Anantapur",
+                "University Type": "State Public University",
+                "University Name": "Dr. N.T.R. University of Health Sciences, Vijaywada (Id: U-0008)",
+                "College Name": "Balaji College of Nursing, Anantapur (Id: C-30510)",
+                "College Type": "Affiliated College",
+                "Address": "D-NO 1-331-2, sivalayam street madana palle, Madanapalle",
+                "Website": "",
+                "Management": "Private Un-Aided",
+                "Year of Establishment\n": "2006",
+                "Specialised in": "Nursing",
+                "Location": "Rural",
+                "": "",
+                "Upload Year": "2020",
+                "The Institute Added In Survey Year": "2010"
+            }
+        },
+        {
+            "name": "Divya College of Nursing, Anantapur (Id: C-30637)",
+            "location": "Urban",
+            "district": "Anantapur",
+            "state": "Andhra Pradesh",
+            "programs": [
+                "No"
+            ],
+            "fees": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "cutoffs": {
+                "general": 0,
+                "sc_st": 0,
+                "obc": 0
+            },
+            "facilities": [],
+            "rating": 0,
+            "students": 0,
+            "established": 2006,
+            "medium": [],
+            "type": "Affiliated College",
+            "raw": {
+                "State": "Andhra Pradesh",
+                "District": "Anantapur",
+                "University Type": "State Public University",
+                "University Name": "Dr. N.T.R. University of Health Sciences, Vijaywada (Id: U-0008)",
+                "College Name": "Divya College of Nursing, Anantapur (Id: C-30637)",
+                "College Type": "Affiliated College",
+                "Address": "H.no.4/62,Kalyandurg road, Near Bypass,Anantapur, Anantapur",
+                "Website": ".....",
+                "Management": "Private Un-Aided",
+                "Year of Establishment\n": "2006",
+                "Specialised in": "No",
+                "Location": "Urban",
+                "": "",
+                "Upload Year": "2011",
+                "The Institute Added In Survey Year": "2010"
+            }
+        }
+    ],
+    "meta": {
+        "total": 47590,
+        "page": 1,
+        "limit": 15,
+        "totalPages": 3173
+    }
+}

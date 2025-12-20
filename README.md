@@ -187,7 +187,7 @@ The application uses a comprehensive database schema with the following models:
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE] file for details.
 
 ## 🙏 Acknowledgments
 
@@ -199,7 +199,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, email your-email@example.com or join our Slack channel.
+For support, email tushteekothare@gmail.com or join our Slack channel.
 
 ---
 
