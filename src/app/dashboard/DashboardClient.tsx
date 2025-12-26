@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useSession } from 'next-auth/react';
 import {
   BookOpen,
   Calendar,
@@ -16,9 +17,11 @@ import {
   School,
   Trophy,
   ChevronRight,
-  ArrowRight
+  ArrowRight,
+  LogOut
 } from 'lucide-react';
 import Link from 'next/link';
+import { signOut } from 'next-auth/react';
 
 interface DashboardStats {
   totalQuizzes: number;
@@ -49,15 +52,37 @@ interface RecentActivity {
   score?: number;
 }
 
-const sampleStats: DashboardStats = {
-  totalQuizzes: 12,
-  averageScore: 78,
-  savedColleges: 8,
+interface SavedCollege {
+  _id: string;
+  name: string;
+  location: string;
+  type: string;
+  rating?: number;
+}
+
+interface SavedMaterial {
+  materialId: number;
+  savedAt: string;
+}
+
+interface QuizResult {
+  _id: string;
+  answers: any[];
+  results?: any;
+  streamRecommendation?: string;
+  careerRecommendations?: string[];
+  createdAt: string;
+}
+
+const initialStats: DashboardStats = {
+  totalQuizzes: 0,
+  averageScore: 0,
+  savedColleges: 0,
   upcomingDeadlines: 3,
   unreadNotifications: 5,
-  studyHours: 45,
-  completionRate: 85,
-  rank: 1247
+  studyHours: 0,
+  completionRate: 0,
+  rank: 0
 };
 
 const quickActions: QuickAction[] = [
@@ -111,37 +136,7 @@ const quickActions: QuickAction[] = [
   }
 ];
 
-const recentActivities: RecentActivity[] = [
-  {
-    id: 1,
-    type: 'quiz',
-    title: 'Mathematics Aptitude Quiz',
-    description: 'Completed with 85% score',
-    timestamp: '2 hours ago',
-    score: 85
-  },
-  {
-    id: 2,
-    type: 'college',
-    title: 'Anna University',
-    description: 'Added to saved colleges',
-    timestamp: '5 hours ago'
-  },
-  {
-    id: 3,
-    type: 'material',
-    title: 'Physics Problem Solving',
-    description: 'Started watching video series',
-    timestamp: '1 day ago'
-  },
-  {
-    id: 4,
-    type: 'reminder',
-    title: 'JEE Main Registration',
-    description: 'Reminder set for deadline',
-    timestamp: '2 days ago'
-  }
-];
+
 
 const upcomingEvents = [
   {
@@ -168,7 +163,174 @@ const upcomingEvents = [
 ];
 
 export default function DashboardClient() {
-  const [stats] = useState(sampleStats);
+  const { data: session } = useSession();
+  const [stats, setStats] = useState(initialStats);
+  const [savedColleges, setSavedColleges] = useState<SavedCollege[]>([]);
+  const [savedMaterials, setSavedMaterials] = useState<SavedMaterial[]>([]);
+  const [quizResults, setQuizResults] = useState<QuizResult[]>([]);
+  const [recentActivities, setRecentActivities] = useState<RecentActivity[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const getQuizScorePercentage = (quiz: QuizResult) => {
+    if (!quiz?.results) {
+      return null;
+    }
+
+    const topScore = typeof quiz.results.topCategoryScore === 'number' ? quiz.results.topCategoryScore : null;
+    const totalQuestions = typeof quiz.results.totalQuestions === 'number' ? quiz.results.totalQuestions : null;
+
+    if (topScore === null || totalQuestions === null || totalQuestions <= 0) {
+      return null;
+    }
+
+    return Math.round((topScore / totalQuestions) * 100);
+  };
+
+  useEffect(() => {
+    if (session) {
+      fetchDashboardData();
+    }
+  }, [session]);
+
+  const fetchDashboardData = async () => {
+    setIsLoading(true);
+    try {
+      // Fetch dashboard resources in parallel with shared request options
+      const requestOptions: RequestInit = {
+        method: 'GET',
+        credentials: 'include',
+        cache: 'no-store'
+      };
+
+      const [collegesRes, materialsRes, quizRes] = await Promise.all([
+        fetch('/api/saved-colleges', requestOptions),
+        fetch('/api/saved-materials', requestOptions),
+        fetch('/api/quiz-results', requestOptions)
+      ]);
+
+      const [collegesData, materialsData, quizData] = await Promise.all([
+        collegesRes.ok ? collegesRes.json() : collegesRes.json().then((data) => {
+          console.error('Failed to load saved colleges:', data);
+          return [];
+        }).catch((error) => {
+          console.error('Failed to parse saved colleges response:', error);
+          return [];
+        }),
+        materialsRes.ok ? materialsRes.json() : materialsRes.json().then((data) => {
+          console.error('Failed to load saved materials:', data);
+          return [];
+        }).catch((error) => {
+          console.error('Failed to parse saved materials response:', error);
+          return [];
+        }),
+        quizRes.ok ? quizRes.json() : quizRes.json().then((data) => {
+          console.error('Failed to load quiz results:', data);
+          return [];
+        }).catch((error) => {
+          console.error('Failed to parse quiz results response:', error);
+          return [];
+        })
+      ]);
+
+      if (Array.isArray(collegesData)) {
+        setSavedColleges(collegesData);
+      }
+
+      if (Array.isArray(materialsData)) {
+        setSavedMaterials(materialsData);
+      }
+
+      if (Array.isArray(quizData)) {
+        setQuizResults(quizData);
+      }
+
+      // Calculate stats
+      const totalQuizzes = Array.isArray(quizData) ? quizData.length : 0;
+      let avgScore = 0;
+
+      if (Array.isArray(quizData) && quizData.length > 0) {
+        const scoreSum = quizData.reduce((sum: number, quiz: QuizResult) => {
+          const quizScore = getQuizScorePercentage(quiz);
+          return sum + (quizScore ?? 0);
+        }, 0);
+
+        avgScore = Math.round(scoreSum / quizData.length);
+      }
+      
+      setStats({
+        totalQuizzes,
+        averageScore: avgScore,
+        savedColleges: Array.isArray(collegesData) ? collegesData.length : 0,
+        upcomingDeadlines: 3,
+        unreadNotifications: 5,
+        studyHours: Array.isArray(materialsData) ? materialsData.length * 2 : 0,
+        completionRate: totalQuizzes > 0 ? 85 : 50,
+        rank: totalQuizzes > 0 ? 1247 : 0
+      });
+
+      // Build recent activities from real data
+      const activities: RecentActivity[] = [];
+      let activityId = 1;
+
+      // Add quiz activities
+      if (Array.isArray(quizData)) {
+        quizData.slice(0, 2).forEach(quiz => {
+          const quizScore = getQuizScorePercentage(quiz);
+          activities.push({
+            id: activityId++,
+            type: 'quiz',
+            title: 'Aptitude Quiz Completed',
+            description: quiz.streamRecommendation ? `Recommended: ${quiz.streamRecommendation}` : 'Quiz completed successfully',
+            timestamp: formatTimeAgo(new Date(quiz.createdAt)),
+            ...(quizScore !== null ? { score: quizScore } : {})
+          });
+        });
+      }
+
+      // Add college activities
+      if (Array.isArray(collegesData)) {
+        collegesData.slice(0, 2).forEach(college => {
+          activities.push({
+            id: activityId++,
+            type: 'college',
+            title: college.name,
+            description: `Saved to your college list`,
+            timestamp: 'Recently'
+          });
+        });
+      }
+
+      // Add material activities
+      if (Array.isArray(materialsData)) {
+        materialsData.slice(0, 2).forEach(material => {
+          activities.push({
+            id: activityId++,
+            type: 'material',
+            title: 'Study Material',
+            description: 'Saved to your materials',
+            timestamp: formatTimeAgo(new Date(material.savedAt))
+          });
+        });
+      }
+
+      setRecentActivities(activities.slice(0, 4));
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const formatTimeAgo = (date: Date) => {
+    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+    if (seconds < 60) return 'Just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
@@ -193,6 +355,13 @@ export default function DashboardClient() {
                   You
                 </div>
               </Link>
+              <button onClick={() => {
+                if (window.confirm('Are you sure you want to log out?')) {
+                  signOut({ callbackUrl: '/' });
+                }
+              }} className="p-2 rounded-full hover:bg-gray-100">
+                <LogOut className="h-6 w-6 text-gray-600" />
+              </button>
             </div>
           </div>
         </div>
@@ -328,7 +497,16 @@ export default function DashboardClient() {
                   </Link>
                 </div>
                 <div className="bg-white rounded-xl shadow-lg">
-                  {recentActivities.map((activity, index) => (
+                  {isLoading ? (
+                    <div className="p-6 text-center text-gray-500">
+                      Loading activities...
+                    </div>
+                  ) : recentActivities.length === 0 ? (
+                    <div className="p-6 text-center text-gray-500">
+                      No recent activity. Start exploring colleges, take a quiz, or save study materials!
+                    </div>
+                  ) : (
+                    recentActivities.map((activity, index) => (
                     <motion.div
                       key={activity.id}
                       initial={{ opacity: 0, x: -20 }}
@@ -359,10 +537,142 @@ export default function DashboardClient() {
                         </div>
                       </div>
                     </motion.div>
-                  ))}
+                  )))}
                 </div>
               </section>
-            </div>
+              {/* Saved Colleges */}
+              <section>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-gray-900">Saved Colleges</h2>
+                  <Link href="/profile" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                    View all
+                  </Link>
+                </div>
+                <div className="bg-white rounded-xl shadow-lg">
+                  {isLoading ? (
+                    <div className="p-6 text-center text-gray-500">
+                      Loading colleges...
+                    </div>
+                  ) : savedColleges.length === 0 ? (
+                    <div className="p-6 text-center text-gray-500">
+                      No saved colleges yet. <Link href="/colleges" className="text-blue-600 hover:underline">Browse colleges</Link>
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-gray-100">
+                      {savedColleges.slice(0, 3).map((college, index) => (
+                        <motion.div
+                          key={college._id || college.name || `college-${index}`}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.6, delay: index * 0.1 }}
+                          className="p-4 hover:bg-gray-50"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <h3 className="font-medium text-gray-900">{college.name}</h3>
+                              <p className="text-sm text-gray-600">{college.location}</p>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              {college.rating && (
+                                <div className="flex items-center text-sm">
+                                  <Star className="h-4 w-4 text-yellow-400 mr-1 fill-current" />
+                                  <span>{college.rating}</span>
+                                </div>
+                              )}
+                              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                                {college.type}
+                              </span>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              {/* Saved Study Materials */}
+              <section>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-gray-900">Study Materials</h2>
+                  <Link href="/study" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                    View all
+                  </Link>
+                </div>
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                  {isLoading ? (
+                    <div className="text-center text-gray-500">
+                      Loading materials...
+                    </div>
+                  ) : savedMaterials.length === 0 ? (
+                    <div className="text-center text-gray-500">
+                      No saved materials yet. <Link href="/study" className="text-blue-600 hover:underline">Explore resources</Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-600">Saved Resources</span>
+                        <span className="font-bold text-blue-600">{savedMaterials.length}</span>
+                      </div>
+                      <p className="text-sm text-gray-500">
+                        You have saved {savedMaterials.length} study {savedMaterials.length === 1 ? 'material' : 'materials'}
+                      </p>
+                      <Link href="/study" className="block w-full text-center bg-blue-50 text-blue-600 py-2 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium">
+                        View All Materials
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              {/* Quiz Results Summary */}
+              {quizResults.length > 0 && (
+                <section>
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-gray-900">Quiz Results</h2>
+                    <Link href="/profile" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                      View all
+                    </Link>
+                  </div>
+                  <div className="bg-white rounded-xl shadow-lg p-6">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-600">Total Quizzes</span>
+                        <span className="font-bold text-purple-600">{quizResults.length}</span>
+                      </div>
+                      {quizResults[0]?.results?.summary && (
+                        <div className="pt-3 border-t border-gray-200">
+                          <p className="text-sm text-gray-600 mb-2">Latest Summary:</p>
+                          <p className="text-sm text-gray-700">{quizResults[0].results.summary}</p>
+                        </div>
+                      )}
+                      {quizResults[0]?.streamRecommendation && (
+                        <div className="pt-3 border-t border-gray-200">
+                          <p className="text-sm text-gray-600 mb-2">Latest Recommendation:</p>
+                          <span className="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                            {quizResults[0].streamRecommendation}
+                          </span>
+                        </div>
+                      )}
+                      {quizResults[0]?.careerRecommendations && quizResults[0].careerRecommendations.length > 0 && (
+                        <div className="pt-3 border-t border-gray-200">
+                          <p className="text-sm text-gray-600 mb-2">Suggested Careers:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {quizResults[0].careerRecommendations.slice(0, 3).map((career, idx) => (
+                              <span key={idx} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                {career}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      <Link href="/quiz" className="block w-full text-center bg-purple-50 text-purple-600 py-2 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium mt-4">
+                        Retake Quiz
+                      </Link>
+                    </div>
+                  </div>
+                </section>
+              )}            </div>
 
             {/* Sidebar */}
             <div className="space-y-6">

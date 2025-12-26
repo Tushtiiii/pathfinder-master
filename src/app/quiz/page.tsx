@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, BookOpen, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 
 interface Question {
   id: number;
@@ -131,17 +132,111 @@ const streamRecommendations = {
   }
 };
 
+type CategoryKey = Question['category'];
+
+const computeCategoryScores = (answerSet: number[]) => {
+  const scores: Record<CategoryKey, number> = {
+    logical: 0,
+    creative: 0,
+    analytical: 0,
+    social: 0,
+    practical: 0
+  };
+
+  questions.forEach((question, index) => {
+    if (answerSet[index] !== undefined && answerSet[index] !== null) {
+      scores[question.category] += 1;
+    }
+  });
+
+  return scores;
+};
+
+const buildStoredQuizResult = (answerSet: number[], recommendation: AIRecommendation | null) => {
+  const categoryScores = computeCategoryScores(answerSet);
+  const categories = Object.keys(categoryScores) as CategoryKey[];
+  const topCategory = categories.reduce((best, current) =>
+    categoryScores[current] > categoryScores[best] ? current : best
+  , categories[0]);
+  const topCategoryScore = categoryScores[topCategory];
+  const totalQuestions = questions.length;
+  const totalAnswered = answerSet.filter((value) => value !== undefined && value !== null).length;
+  const fallback = streamRecommendations[topCategory];
+
+  const base = recommendation ? {
+    stream: recommendation.stream,
+    careers: recommendation.careers,
+    assessment: recommendation.assessment,
+    description: recommendation.assessment,
+    strengths: recommendation.strengths ?? [],
+    colleges: recommendation.colleges ?? [],
+    summary: recommendation.assessment,
+    usedAI: true
+  } : {
+    stream: fallback.stream,
+    careers: fallback.careers,
+    description: fallback.description,
+    assessment: fallback.description,
+    strengths: [] as string[],
+    colleges: [] as string[],
+    summary: fallback.description,
+    usedAI: false
+  };
+
+  return {
+    answers: answerSet,
+    streamRecommendation: base.stream,
+    careerRecommendations: base.careers,
+    results: {
+      ...base,
+      categoryScores,
+      totalQuestions,
+      totalAnswered,
+      topCategory,
+      topCategoryScore
+    }
+  };
+};
+
+interface AIRecommendation {
+  stream: string;
+  careers: string[];
+  colleges: string[];
+  assessment: string;
+  strengths: string[];
+}
+
 export default function AptitudeQuiz() {
+  const { data: session } = useSession();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [aiRecommendation, setAiRecommendation] = useState<AIRecommendation | null>(null);
+  const [isLoadingAI, setIsLoadingAI] = useState(false);
+
+  const persistQuizResult = async (answerSet: number[], recommendation: AIRecommendation | null) => {
+    if (!session?.user?.email) {
+      return;
+    }
+
+    try {
+      const payload = buildStoredQuizResult(answerSet, recommendation);
+      await fetch('/api/quiz-results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch (error) {
+      console.error('Failed to store quiz result:', error);
+    }
+  };
 
   const handleAnswer = (answerIndex: number) => {
     setSelectedAnswer(answerIndex);
   };
 
-  const nextQuestion = () => {
+  const nextQuestion = async () => {
     if (selectedAnswer !== null) {
       const newAnswers = [...answers];
       newAnswers[currentQuestion] = selectedAnswer;
@@ -151,8 +246,33 @@ export default function AptitudeQuiz() {
         setCurrentQuestion(currentQuestion + 1);
         setSelectedAnswer(null);
       } else {
-        // Quiz completed
-        setShowResults(true);
+        // Quiz completed - fetch AI recommendations
+        setIsLoadingAI(true);
+        let aiData: AIRecommendation | null = null;
+        try {
+          const response = await fetch('/api/quiz-recommendations', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ answers: newAnswers, questions })
+          });
+
+          if (response.ok) {
+            aiData = await response.json();
+            setAiRecommendation(aiData);
+          } else {
+            setAiRecommendation(null);
+          }
+        } catch (error) {
+          console.error('Failed to fetch AI recommendations:', error);
+          setAiRecommendation(null);
+        }
+
+        try {
+          await persistQuizResult(newAnswers, aiData);
+        } finally {
+          setIsLoadingAI(false);
+          setShowResults(true);
+        }
       }
     }
   };
@@ -164,24 +284,21 @@ export default function AptitudeQuiz() {
     }
   };
 
+  const retakeQuiz = () => {
+    setCurrentQuestion(0);
+    setAnswers([]);
+    setShowResults(false);
+    setSelectedAnswer(null);
+    setAiRecommendation(null);
+    setIsLoadingAI(false);
+  };
+
   const calculateResults = () => {
-    const categoryScores: Record<string, number> = {
-      logical: 0,
-      creative: 0,
-      analytical: 0,
-      social: 0,
-      practical: 0
-    };
-
-    questions.forEach((question, index) => {
-      if (answers[index] !== undefined) {
-        categoryScores[question.category]++;
-      }
-    });
-
-    const topCategory = Object.keys(categoryScores).reduce((a, b) => 
-      categoryScores[a] > categoryScores[b] ? a : b
-    ) as keyof typeof streamRecommendations;
+    const categoryScores = computeCategoryScores(answers);
+    const categories = Object.keys(categoryScores) as CategoryKey[];
+    const topCategory = categories.reduce((best, current) =>
+      categoryScores[current] > categoryScores[best] ? current : best
+    , categories[0]);
 
     return streamRecommendations[topCategory];
   };
@@ -189,7 +306,7 @@ export default function AptitudeQuiz() {
   const progress = ((currentQuestion + 1) / questions.length) * 100;
 
   if (showResults) {
-    const result = calculateResults();
+    const result = aiRecommendation || calculateResults();
     
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
@@ -228,19 +345,56 @@ export default function AptitudeQuiz() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="bg-white rounded-xl shadow-lg p-8 mb-8"
           >
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Recommended Stream: <span className="text-blue-600">{result.stream}</span>
-            </h2>
-            <p className="text-gray-700 mb-6">{result.description}</p>
+            {isLoadingAI && (
+              <div className="text-center py-8">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                <p className="text-gray-600">Generating personalized recommendations with AI...</p>
+              </div>
+            )}
             
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Career Opportunities:</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-              {result.careers.map((career, index) => (
-                <div key={index} className="bg-blue-50 text-blue-700 px-3 py-2 rounded-lg text-center font-medium">
-                  {career}
+            {!isLoadingAI && (
+              <>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  Recommended Stream: <span className="text-blue-600">{result.stream}</span>
+                </h2>
+                <p className="text-gray-700 mb-6">{aiRecommendation ? result.assessment : result.description}</p>
+                
+                {aiRecommendation && result.strengths && (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Your Key Strengths:</h3>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {result.strengths.map((strength, index) => (
+                        <span key={index} className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+                          {strength}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Career Opportunities:</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+                  {result.careers.map((career, index) => (
+                    <div key={index} className="bg-blue-50 text-blue-700 px-3 py-2 rounded-lg text-center font-medium">
+                      {career}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+                
+                {aiRecommendation && result.colleges && (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Recommended Colleges:</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {result.colleges.map((college, index) => (
+                        <div key={index} className="bg-purple-50 text-purple-700 px-4 py-2 rounded-lg font-medium">
+                          {college}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link 
@@ -255,12 +409,12 @@ export default function AptitudeQuiz() {
               >
                 Explore Career Paths
               </Link>
-              <Link 
-                href="/quiz" 
+              <button 
+                onClick={retakeQuiz}
                 className="bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors text-center"
               >
                 Retake Quiz
-              </Link>
+              </button>
             </div>
           </motion.div>
 

@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   User, 
-  BookOpen, 
   Edit3, 
   Save, 
   MapPin, 
@@ -13,9 +12,14 @@ import {
   Trophy,
   Target,
   Star,
-  TrendingUp
+  TrendingUp,
+  Building
 } from 'lucide-react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { useEffect } from 'react';
+import Navbar from '@/components/Navbar';
+import { useToast } from '@/components/ToastProvider';
 
 interface UserProfile {
   name: string;
@@ -32,21 +36,6 @@ interface UserProfile {
   achievements: string[];
 }
 
-const sampleProfile: UserProfile = {
-  name: "Arjun Sharma",
-  email: "arjun.sharma@email.com",
-  age: 17,
-  gender: "Male",
-  class: "12th",
-  location: "Chennai",
-  state: "Tamil Nadu",
-  interests: ["Technology", "Mathematics", "Problem Solving", "Innovation"],
-  streamPreference: "Science (PCM)",
-  careerGoals: ["Software Engineer", "Data Scientist", "Entrepreneur"],
-  strengths: ["Logical Thinking", "Programming", "Leadership", "Communication"],
-  achievements: ["School Topper in Mathematics", "Won State Level Coding Competition", "Led Tech Club"]
-};
-
 const interestOptions = [
   "Technology", "Mathematics", "Science", "Arts", "Music", "Sports", 
   "Literature", "History", "Geography", "Economics", "Business", 
@@ -55,14 +44,107 @@ const interestOptions = [
 
 const streamOptions = ["Science (PCM)", "Science (PCB)", "Commerce", "Arts", "Vocational"];
 
+interface SavedCollege {
+  _id: string;
+  name: string;
+  location: string;
+  rating: number;
+  type: string;
+}
+
 export default function ProfilePage() {
-  const [profile, setProfile] = useState<UserProfile>(sampleProfile);
+  const { data: session } = useSession();
+  const { showToast } = useToast();
+  const [profile, setProfile] = useState<UserProfile>({
+    name: '',
+    email: '',
+    age: 0,
+    gender: '',
+    class: '',
+    location: '',
+    state: '',
+    interests: [],
+    streamPreference: '',
+    careerGoals: [],
+    strengths: [],
+    achievements: []
+  });
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [savedColleges, setSavedColleges] = useState<SavedCollege[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = () => {
-    // Here you would typically save to database
-    setIsEditing(false);
+  useEffect(() => {
+    if (session) {
+      setIsLoading(true);
+      // Fetch user profile data
+      fetch('/api/profile')
+        .then(res => res.json())
+        .then(data => {
+          if (data && !data.error) {
+            setProfile({
+              name: data.name || '',
+              email: data.email || '',
+              age: data.age || 0,
+              gender: data.gender || '',
+              class: data.class || '',
+              location: data.location || '',
+              state: data.state || '',
+              interests: data.interests || [],
+              streamPreference: data.streamPreference || '',
+              careerGoals: data.careerGoals || [],
+              strengths: data.strengths || [],
+              achievements: data.achievements || []
+            });
+          }
+        })
+        .catch(error => console.error('Error fetching profile:', error))
+        .finally(() => setIsLoading(false));
+
+      // Fetch saved colleges
+      fetch('/api/saved-colleges')
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            setSavedColleges(data);
+          }
+        })
+        .catch(error => console.error('Error fetching saved colleges:', error));
+    }
+  }, [session]);
+
+
+  const handleSave = async () => {
+    if (!session) {
+      showToast({ message: 'Please log in to save your profile', type: 'warning' });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const response = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profile),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        showToast({ message: 'Profile saved successfully', type: 'success' });
+        setIsEditing(false);
+      } else {
+        showToast({ message: data.error || 'Failed to save profile', type: 'error' });
+      }
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      showToast({ message: 'Failed to save profile. Please try again.', type: 'error' });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleInterestToggle = (interest: string) => {
@@ -81,31 +163,38 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <Link href="/" className="flex items-center space-x-2">
-              <BookOpen className="h-8 w-8 text-blue-600" />
-              <span className="text-2xl font-bold text-gray-900">EduGuide</span>
-            </Link>
-            <div className="flex items-center space-x-4">
-              <Link href="/quiz" className="text-blue-600 hover:text-blue-700 font-medium">
-                Retake Quiz
-              </Link>
-              <button
-                onClick={() => isEditing ? handleSave() : setIsEditing(true)}
-                className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                {isEditing ? <Save className="h-4 w-4" /> : <Edit3 className="h-4 w-4" />}
-                <span>{isEditing ? 'Save Profile' : 'Edit Profile'}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid lg:grid-cols-4 gap-8">
+      {!session ? (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Please Log In</h2>
+          <p className="text-gray-600 mb-8">You need to be logged in to view and edit your profile.</p>
+          <Link href="/auth" className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors inline-block">
+            Go to Login
+          </Link>
+        </div>
+      ) : isLoading ? (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="text-gray-600 mt-4">Loading profile...</p>
+        </div>
+      ) : (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+            <Link href="/quiz" className="text-blue-600 hover:text-blue-700 font-medium">
+              Retake Quiz
+            </Link>
+            <button
+              onClick={() => isEditing ? handleSave() : setIsEditing(true)}
+              disabled={isSaving || isLoading}
+              className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              type="button"
+            >
+              {isEditing ? <Save className="h-4 w-4" /> : <Edit3 className="h-4 w-4" />}
+              <span>{isSaving ? 'Saving...' : isEditing ? 'Save Profile' : 'Edit Profile'}</span>
+            </button>
+          </div>
+          <div className="grid lg:grid-cols-4 gap-8">
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <motion.div
@@ -183,6 +272,14 @@ export default function ProfilePage() {
                 >
                   Recommendations
                 </button>
+                <button
+                  onClick={() => setActiveTab('savedColleges')}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                    activeTab === 'savedColleges' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'
+                  }`}
+                >
+                  Saved Colleges
+                </button>
               </div>
             </motion.div>
           </div>
@@ -216,7 +313,7 @@ export default function ProfilePage() {
                             title="Full Name"
                           />
                         ) : (
-                          <p className="p-3 bg-gray-50 rounded-lg">{profile.name}</p>
+                          <p className="p-3 bg-gray-50 text-gray-700 rounded-lg">{profile.name}</p>
                         )}
                       </div>
                       
@@ -376,14 +473,53 @@ export default function ProfilePage() {
                       <h3 className="text-2xl font-bold text-gray-900">Career Goals</h3>
                     </div>
                     
-                    <div className="space-y-3">
-                      {profile.careerGoals.map((goal, index) => (
-                        <div key={index} className="flex items-center p-3 bg-blue-50 rounded-lg">
-                          <Target className="h-5 w-5 text-blue-600 mr-3" />
-                          <span className="text-blue-800 font-medium">{goal}</span>
-                        </div>
-                      ))}
-                    </div>
+                    {isEditing ? (
+                      <div className="space-y-3">
+                        {profile.careerGoals.map((goal, index) => (
+                          <div key={index} className="flex items-center space-x-2">
+                            <input
+                              type="text"
+                              value={goal}
+                              onChange={(e) => {
+                                const newGoals = [...profile.careerGoals];
+                                newGoals[index] = e.target.value;
+                                setProfile({...profile, careerGoals: newGoals});
+                              }}
+                              className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                              placeholder="Enter career goal"
+                            />
+                            <button
+                              onClick={() => {
+                                const newGoals = profile.careerGoals.filter((_, i) => i !== index);
+                                setProfile({...profile, careerGoals: newGoals});
+                              }}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                        <button
+                          onClick={() => setProfile({...profile, careerGoals: [...profile.careerGoals, '']})}
+                          className="w-full p-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-500 hover:text-blue-600"
+                        >
+                          + Add Career Goal
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {profile.careerGoals.length > 0 ? (
+                          profile.careerGoals.map((goal, index) => (
+                            <div key={index} className="flex items-center p-3 bg-blue-50 rounded-lg">
+                              <Target className="h-5 w-5 text-blue-600 mr-3" />
+                              <span className="text-blue-800 font-medium">{goal}</span>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-gray-500">No career goals added yet</p>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Strengths */}
@@ -393,14 +529,53 @@ export default function ProfilePage() {
                       <h3 className="text-2xl font-bold text-gray-900">Key Strengths</h3>
                     </div>
                     
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {profile.strengths.map((strength, index) => (
-                        <div key={index} className="flex items-center p-4 bg-purple-50 rounded-lg">
-                          <Star className="h-5 w-5 text-purple-600 mr-3" />
-                          <span className="text-purple-800 font-medium">{strength}</span>
-                        </div>
-                      ))}
-                    </div>
+                    {isEditing ? (
+                      <div className="space-y-3">
+                        {profile.strengths.map((strength, index) => (
+                          <div key={index} className="flex items-center space-x-2">
+                            <input
+                              type="text"
+                              value={strength}
+                              onChange={(e) => {
+                                const newStrengths = [...profile.strengths];
+                                newStrengths[index] = e.target.value;
+                                setProfile({...profile, strengths: newStrengths});
+                              }}
+                              className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                              placeholder="Enter strength"
+                            />
+                            <button
+                              onClick={() => {
+                                const newStrengths = profile.strengths.filter((_, i) => i !== index);
+                                setProfile({...profile, strengths: newStrengths});
+                              }}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                        <button
+                          onClick={() => setProfile({...profile, strengths: [...profile.strengths, '']})}
+                          className="w-full p-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-purple-500 hover:text-purple-600"
+                        >
+                          + Add Strength
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="grid md:grid-cols-2 gap-4">
+                        {profile.strengths.length > 0 ? (
+                          profile.strengths.map((strength, index) => (
+                            <div key={index} className="flex items-center p-4 bg-purple-50 rounded-lg">
+                              <Star className="h-5 w-5 text-purple-600 mr-3" />
+                              <span className="text-purple-800 font-medium">{strength}</span>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-gray-500 col-span-2">No strengths added yet</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -412,17 +587,56 @@ export default function ProfilePage() {
                     <h3 className="text-2xl font-bold text-gray-900">Achievements & Awards</h3>
                   </div>
                   
-                  <div className="space-y-4">
-                    {profile.achievements.map((achievement, index) => (
-                      <div key={index} className="flex items-start p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border-l-4 border-yellow-500">
-                        <Trophy className="h-6 w-6 text-yellow-600 mr-4 mt-1" />
-                        <div>
-                          <p className="text-gray-800 font-medium">{achievement}</p>
-                          <p className="text-gray-600 text-sm mt-1">Academic Year 2024-25</p>
+                  {isEditing ? (
+                    <div className="space-y-3">
+                      {profile.achievements.map((achievement, index) => (
+                        <div key={index} className="flex items-center space-x-2">
+                          <input
+                            type="text"
+                            value={achievement}
+                            onChange={(e) => {
+                              const newAchievements = [...profile.achievements];
+                              newAchievements[index] = e.target.value;
+                              setProfile({...profile, achievements: newAchievements});
+                            }}
+                            className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500"
+                            placeholder="Enter achievement"
+                          />
+                          <button
+                            onClick={() => {
+                              const newAchievements = profile.achievements.filter((_, i) => i !== index);
+                              setProfile({...profile, achievements: newAchievements});
+                            }}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded"
+                          >
+                            Remove
+                          </button>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                      <button
+                        onClick={() => setProfile({...profile, achievements: [...profile.achievements, '']})}
+                        className="w-full p-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-yellow-500 hover:text-yellow-600"
+                      >
+                        + Add Achievement
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {profile.achievements.length > 0 ? (
+                        profile.achievements.map((achievement, index) => (
+                          <div key={index} className="flex items-start p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border-l-4 border-yellow-500">
+                            <Trophy className="h-6 w-6 text-yellow-600 mr-4 mt-1" />
+                            <div>
+                              <p className="text-gray-800 font-medium">{achievement}</p>
+                              <p className="text-gray-600 text-sm mt-1">Academic Year 2024-25</p>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-gray-500">No achievements added yet</p>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -476,10 +690,45 @@ export default function ProfilePage() {
                   </div>
                 </div>
               )}
+
+              {activeTab === 'savedColleges' && (
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                  <div className="flex items-center mb-6">
+                    <Building className="h-6 w-6 text-blue-600 mr-2" />
+                    <h3 className="text-2xl font-bold text-gray-900">Saved Colleges</h3>
+                  </div>
+                  <div className="space-y-4">
+                    {savedColleges.length > 0 ? (
+                      savedColleges.map(college => (
+                        <div key={college._id} className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h4 className="font-semibold text-gray-900">{college.name}</h4>
+                              <p className="text-gray-600 text-sm">{college.location}</p>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <div className="flex items-center text-sm">
+                                <Star className="h-4 w-4 text-yellow-400 mr-1" />
+                                <span>{college.rating}</span>
+                              </div>
+                              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                                {college.type}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p>You haven't saved any colleges yet.</p>
+                    )}
+                  </div>
+                </div>
+              )}
             </motion.div>
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }

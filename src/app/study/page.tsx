@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import { 
   BookOpen, 
@@ -19,6 +20,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useToast } from '@/components/ToastProvider';
 
 interface StudyMaterial {
   id: number;
@@ -35,6 +37,8 @@ interface StudyMaterial {
   thumbnail: string;
   tags: string[];
   url: string;
+  youtubeUrl?: string;
+  courseraUrl?: string;
   isPremium: boolean;
   isBookmarked: boolean;
   lastUpdated: string;
@@ -55,6 +59,8 @@ const sampleMaterials: StudyMaterial[] = [
     thumbnail: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=250",
     tags: ["Calculus", "JEE", "Mathematics", "Problem Solving"],
     url: "#",
+    youtubeUrl: "https://www.youtube.com/watch?v=WUvTyaaNkzM",
+    courseraUrl: "https://www.coursera.org/learn/calculus1",
     isPremium: false,
     isBookmarked: true,
     lastUpdated: "2024-12-15"
@@ -74,6 +80,7 @@ const sampleMaterials: StudyMaterial[] = [
     thumbnail: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=400&h=250",
     tags: ["Organic Chemistry", "Reactions", "NEET", "Mechanisms"],
     url: "#",
+    youtubeUrl: "https://www.youtube.com/watch?v=qxXYpqzj6yQ",
     isPremium: true,
     isBookmarked: false,
     lastUpdated: "2024-12-10"
@@ -92,6 +99,7 @@ const sampleMaterials: StudyMaterial[] = [
     thumbnail: "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?w=400&h=250",
     tags: ["Physics", "Problem Solving", "JEE", "Practice"],
     url: "#",
+    courseraUrl: "https://www.coursera.org/learn/physics-1-mechanics",
     isPremium: false,
     isBookmarked: true,
     lastUpdated: "2024-12-12"
@@ -128,6 +136,7 @@ const sampleMaterials: StudyMaterial[] = [
     thumbnail: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=250",
     tags: ["Biology", "NEET", "Mock Test", "Practice"],
     url: "#",
+    youtubeUrl: "https://www.youtube.com/watch?v=3mvKqb3f-y4",
     isPremium: true,
     isBookmarked: true,
     lastUpdated: "2024-12-14"
@@ -146,6 +155,8 @@ const sampleMaterials: StudyMaterial[] = [
     thumbnail: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=250",
     tags: ["Algorithms", "Data Structures", "Programming", "Coding"],
     url: "#",
+    youtubeUrl: "https://www.youtube.com/watch?v=8hly31xKli0",
+    courseraUrl: "https://www.coursera.org/specializations/data-structures-algorithms",
     isPremium: true,
     isBookmarked: false,
     lastUpdated: "2024-12-11"
@@ -173,13 +184,57 @@ const typeColors = {
 };
 
 export default function StudyMaterialsPage() {
+  const { data: session } = useSession();
+  const { showToast } = useToast();
   const [materials] = useState(sampleMaterials);
+  const [savedMaterialIds, setSavedMaterialIds] = useState<number[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('All');
   const [selectedType, setSelectedType] = useState('All');
   const [selectedLevel, setSelectedLevel] = useState('All');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    if (session) {
+      fetch('/api/saved-materials')
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            setSavedMaterialIds(data.map((m: any) => m.materialId));
+          }
+        })
+        .catch(err => console.error('Failed to fetch saved materials:', err));
+    }
+  }, [session]);
+
+  const handleSaveMaterial = async (materialId: number) => {
+    if (!session) {
+      showToast({ message: 'Please log in to save study materials', type: 'warning' });
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/saved-materials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ materialId })
+      });
+
+      if (response.ok) {
+        if (savedMaterialIds.includes(materialId)) {
+          setSavedMaterialIds(savedMaterialIds.filter(id => id !== materialId));
+          showToast({ message: 'Material removed from your saved list', type: 'info' });
+        } else {
+          setSavedMaterialIds([...savedMaterialIds, materialId]);
+          showToast({ message: 'Material saved successfully', type: 'success' });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to save material:', error);
+      showToast({ message: 'Failed to update saved materials. Please try again.', type: 'error' });
+    }
+  };
 
   const filteredMaterials = materials.filter(material => {
     const matchesSearch = !searchTerm || 
@@ -272,9 +327,29 @@ export default function StudyMaterialsPage() {
                       <Clock className="h-4 w-4 text-gray-400" />
                       <span className="text-sm text-gray-500">{material.duration}</span>
                     </div>
-                    <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-                      Start Learning
-                    </button>
+                    <div className="space-y-2">
+                      {(material.youtubeUrl || material.courseraUrl) && (
+                        <div className="flex gap-2">
+                          {material.youtubeUrl && (
+                            <a href={material.youtubeUrl} target="_blank" rel="noopener noreferrer" className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors text-center text-sm">
+                              YouTube
+                            </a>
+                          )}
+                          {material.courseraUrl && (
+                            <a href={material.courseraUrl} target="_blank" rel="noopener noreferrer" className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors text-center text-sm">
+                              Coursera
+                            </a>
+                          )}
+                        </div>
+                      )}
+                      <button 
+                        onClick={() => handleSaveMaterial(material.id)}
+                        className={`w-full border border-blue-600 text-blue-600 py-2 px-4 rounded-lg hover:bg-blue-50 transition-colors ${!session ? 'opacity-60' : ''}`}
+                      >
+                        {savedMaterialIds.includes(material.id) ? 'Unsave Material' : 'Save Material'}
+                      </button>
+                      {!session && <p className="text-xs text-center text-gray-500">Log in to save materials</p>}
+                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -428,9 +503,14 @@ export default function StudyMaterialsPage() {
                       <div className="flex-1">
                         <div className="flex items-start justify-between mb-2">
                           <h3 className="text-lg font-bold text-gray-900 flex-1">{material.title}</h3>
-                          <Bookmark 
-                            className={`h-5 w-5 ml-2 cursor-pointer ${material.isBookmarked ? 'text-blue-600 fill-current' : 'text-gray-400'}`}
-                          />
+                          <button
+                            onClick={() => handleSaveMaterial(material.id)}
+                            className={!session ? 'opacity-60' : undefined}
+                          >
+                            <Bookmark 
+                              className={`h-5 w-5 ml-2 cursor-pointer ${savedMaterialIds.includes(material.id) ? 'text-blue-600 fill-current' : 'text-gray-400'}`}
+                            />
+                          </button>
                         </div>
                         <p className="text-gray-600 text-sm mb-3 line-clamp-2">{material.description}</p>
                         <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
@@ -453,9 +533,18 @@ export default function StudyMaterialsPage() {
                               </span>
                             ))}
                           </div>
-                          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
-                            View Material
-                          </button>
+                          <div className="flex gap-2">
+                            {material.youtubeUrl && (
+                              <a href={material.youtubeUrl} target="_blank" rel="noopener noreferrer" className="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors text-xs">
+                                YouTube
+                              </a>
+                            )}
+                            {material.courseraUrl && (
+                              <a href={material.courseraUrl} target="_blank" rel="noopener noreferrer" className="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 transition-colors text-xs">
+                                Coursera
+                              </a>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -489,12 +578,13 @@ export default function StudyMaterialsPage() {
                       </span>
                     </div>
                     <button 
-                      className="absolute top-3 left-3"
-                      title={material.isBookmarked ? 'Remove from bookmarks' : 'Add to bookmarks'}
-                      aria-label={material.isBookmarked ? 'Remove from bookmarks' : 'Add to bookmarks'}
+                      onClick={() => handleSaveMaterial(material.id)}
+                      className={`absolute top-3 left-3 ${!session ? 'opacity-60' : ''}`}
+                      title={savedMaterialIds.includes(material.id) ? 'Remove from bookmarks' : 'Add to bookmarks'}
+                      aria-label={savedMaterialIds.includes(material.id) ? 'Remove from bookmarks' : 'Add to bookmarks'}
                     >
                       <Bookmark 
-                        className={`h-5 w-5 ${material.isBookmarked ? 'text-white fill-current' : 'text-white/70'}`}
+                        className={`h-5 w-5 ${savedMaterialIds.includes(material.id) ? 'text-white fill-current' : 'text-white/70'}`}
                       />
                     </button>
                   </div>
@@ -526,9 +616,29 @@ export default function StudyMaterialsPage() {
                       ))}
                     </div>
 
-                    <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-                      Start Learning
-                    </button>
+                    <div className="space-y-2">
+                      {(material.youtubeUrl || material.courseraUrl) && (
+                        <div className="flex gap-2">
+                          {material.youtubeUrl && (
+                            <a href={material.youtubeUrl} target="_blank" rel="noopener noreferrer" className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors text-center text-sm">
+                              YouTube
+                            </a>
+                          )}
+                          {material.courseraUrl && (
+                            <a href={material.courseraUrl} target="_blank" rel="noopener noreferrer" className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors text-center text-sm">
+                              Coursera
+                            </a>
+                          )}
+                        </div>
+                      )}
+                      <button 
+                        onClick={() => handleSaveMaterial(material.id)}
+                        className={`w-full border border-blue-600 text-blue-600 py-2 px-4 rounded-lg hover:bg-blue-50 transition-colors ${!session ? 'opacity-60' : ''}`}
+                      >
+                        {savedMaterialIds.includes(material.id) ? 'Unsave Material' : 'Save Material'}
+                      </button>
+                      {!session && <p className="text-xs text-center text-gray-500">Log in to save materials</p>}
+                    </div>
                   </div>
                 </motion.div>
               );

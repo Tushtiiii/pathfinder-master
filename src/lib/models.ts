@@ -13,6 +13,15 @@ const UserSchema = new Schema({
   location: { type: String },
   state: { type: String },
   interests: [{ type: String }], // Array of interests
+  streamPreference: { type: String },
+  careerGoals: [{ type: String }],
+  strengths: [{ type: String }],
+  achievements: [{ type: String }],
+  savedColleges: [{ type: Schema.Types.Mixed }],
+  savedMaterials: [{ 
+    materialId: { type: Number },
+    savedAt: { type: Date, default: Date.now }
+  }],
 }, {
   timestamps: true,
   collection: 'users'

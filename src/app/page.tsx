@@ -1,16 +1,7 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import {
-  BookOpen,
-  Calendar,
-  Brain,
-  TrendingUp,
-  School,
-  Target,
-  Bell,
-  Play, 
-} from 'lucide-react';
+import {BookOpen,Calendar, Brain,TrendingUp,School,Target, Bell, Play,} from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -93,19 +84,7 @@ export default function Home() {
               // when CSS changes only one dimension, include an explicit auto rule to preserve aspect ratio
               style={{ width: 'auto' }}
             />
-            {/* <Card className="absolute -bottom-6 -left-6 p-6 shadow-lg">
-                <CardContent className="p-0">
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-secondary/10 p-3 rounded-lg">
-                      <GraduationCap className="text-secondary h-6 w-6" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Students Guided</p>
-                      <p className="text-2xl font-bold text-foreground" data-testid="text-students-count">50,000+</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card> */}
+            
           </div>
         </motion.div>
       </section>

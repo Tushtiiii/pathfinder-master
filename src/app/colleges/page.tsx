@@ -1,9 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import Colleges from './data';
 import { motion } from 'framer-motion';
 import {
-  BookOpen,
   MapPin,
   Search,
   Filter,
@@ -16,6 +16,8 @@ import {
   BookMarked
 } from 'lucide-react';
 import Link from 'next/link';
+import Navbar from '@/components/Navbar';
+import { useToast } from '@/components/ToastProvider';
 
 interface College {
   id: number;
@@ -48,8 +50,11 @@ interface DBCollege extends Partial<College> {
 
 
 export default function CollegesDirectory() {
+  const { data: session } = useSession();
+  const { showToast } = useToast();
   // Start with the local static dataset so the UI works immediately if the API is unavailable
   const [colleges, setColleges] = useState<DBCollege[]>(Colleges as DBCollege[]);
+  const [savedCollegeIds, setSavedCollegeIds] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedState, setSelectedState] = useState('');
   const [selectedType, setSelectedType] = useState('');
@@ -81,7 +86,7 @@ export default function CollegesDirectory() {
         const meta = data && typeof data === 'object' && 'meta' in data ? (data as unknown as { meta?: MetaType }).meta : undefined;
 
         // Map remote items into the same shape the UI expects when items are raw remote objects
-        const mapped = items.map((item: Record<string, unknown>) => {
+        const mapped = items.map((item: Record<string, unknown>, index: number) => {
           const get = (k: string) => {
             const v = item[k];
             if (v === undefined || v === null) return undefined;
@@ -102,7 +107,11 @@ export default function CollegesDirectory() {
           const mediumVal = (get('Medium') as string) || '';
           const typeVal = (get('College Type') || get('University Type') || get('CollegeType') || '') as string;
 
+          // Generate a unique ID from the college name if _id or id is not available
+          const collegeId = item._id as string || item.id as string || `college-${name.replace(/\s+/g, '-').toLowerCase()}-${index}`;
+
           return {
+            _id: collegeId,
             name,
             location,
             district,
@@ -125,6 +134,11 @@ export default function CollegesDirectory() {
         setTotalPages(meta?.totalPages ?? 1);
       } catch (err) {
         console.error('Failed to load colleges:', err);
+        if (!mounted) return;
+        showToast({ message: 'Unable to reach colleges service. Showing cached list instead.', type: 'warning' });
+        setColleges(Colleges as DBCollege[]);
+        setTotalResults((Colleges as DBCollege[]).length);
+        setTotalPages(Math.ceil((Colleges as DBCollege[]).length / limit));
       }
     };
 
@@ -133,6 +147,83 @@ export default function CollegesDirectory() {
       mounted = false;
     };
   },[apiUrl, page, limit]);
+
+  useEffect(() => {
+    if (session) {
+      fetch('/api/saved-colleges')
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            const ids = data
+              .map((c: any) => {
+                if (typeof c === 'string') return c;
+                if (c && typeof c === 'object') {
+                  return c._id || c.id || c.collegeId;
+                }
+                return undefined;
+              })
+              .filter((id: unknown): id is string => typeof id === 'string' && id.length > 0);
+            setSavedCollegeIds(ids);
+          }
+        })
+        .catch(err => console.error('Failed to fetch saved colleges:', err));
+    }
+  }, [session]);
+
+  const handleSaveCollege = async (collegeId: string) => {
+    if (!session) {
+      showToast({ message: 'Please log in to save colleges', type: 'warning' });
+      return;
+    }
+
+    if (!collegeId) {
+      console.error('College ID is undefined');
+      return;
+    }
+
+    try {
+      const targetCollege = colleges.find((college) => college._id === collegeId);
+      const payload: Record<string, unknown> = { collegeId };
+
+      if (targetCollege) {
+        const metadata: Record<string, unknown> = {
+          name: targetCollege.name ?? '',
+          location: targetCollege.location ?? targetCollege.district ?? '',
+          state: targetCollege.state ?? '',
+          type: targetCollege.type ?? ''
+        };
+
+        if (typeof targetCollege.rating === 'number' && Number.isFinite(targetCollege.rating)) {
+          metadata.rating = targetCollege.rating;
+        }
+
+        payload.metadata = metadata;
+      }
+
+      const response = await fetch('/api/saved-colleges', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        if (savedCollegeIds.includes(collegeId)) {
+          setSavedCollegeIds(savedCollegeIds.filter(id => id !== collegeId));
+          showToast({ message: 'College removed from your saved list', type: 'info' });
+        } else {
+          setSavedCollegeIds([...savedCollegeIds, collegeId]);
+          showToast({ message: 'College saved successfully', type: 'success' });
+        }
+      } else {
+        const error = await response.json();
+        console.error('Failed to save college:', error);
+        showToast({ message: error?.error || 'Unable to update saved colleges.', type: 'error' });
+      }
+    } catch (error) {
+      console.error('Failed to save college:', error);
+      showToast({ message: 'Unable to update saved colleges. Please try again.', type: 'error' });
+    }
+  };
 
   const filteredColleges = colleges.filter((college) => {
     const name = (college.name || '').toString().toLowerCase();
@@ -154,16 +245,7 @@ export default function CollegesDirectory() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <Link href="/" className="flex items-center space-x-2">
-              <BookOpen className="h-8 w-8 text-blue-600" />
-              <span className="text-2xl font-bold text-gray-900">EduGuide</span>
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <motion.div
@@ -352,9 +434,14 @@ export default function CollegesDirectory() {
                       <button className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
                         View Details
                       </button>
-                      <button className="w-full border border-blue-600 text-blue-600 py-2 rounded-lg hover:bg-blue-50 transition-colors">
-                        Save College
+                      <button 
+                        onClick={() => handleSaveCollege(college._id!)}
+                        disabled={!session || !college._id}
+                        className="w-full border border-blue-600 text-blue-600 py-2 rounded-lg hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {savedCollegeIds.includes(college._id!) ? 'Unsave College' : 'Save College'}
                       </button>
+                      {!session && <p className="text-xs text-center text-gray-500 mt-1">Log in to save colleges</p>}
                       <button className="w-full border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-100 transition-colors">
                         Get Directions
                       </button>
